@@ -1,15 +1,10 @@
 @import "tailwindcss";
 
+/* --- 基本カラー変数（ライト／ダーク） --- */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-size-base: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +14,169 @@
   }
 }
 
+/* --- ベーススタイル（全体横スクロール防止） --- */
 body {
-  background: var(--background);
+  background: linear-gradient(to bottom right, #fefefe 0%, #f4f5f8 40%, #e8e9ed 100%);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden !important;  /* 全体スクロール禁止 */
+  font-size: var(--font-size-base);
+  transition: background 0.3s ease, color 0.3s ease, font-size 0.3s ease;
+  box-sizing: border-box;
+}
+
+/* --- ダークモード、ライトモードの切り替え設定 --- */
+body.theme-light {
+  background-color: var(--background);  /* var(--background) に変更 */
+  color: var(--foreground);  /* var(--foreground) に変更 */
+}
+
+body.theme-dark {
+  background-color: var(--background);  /* var(--background) に変更 */
+  color: var(--foreground);  /* var(--foreground) に変更 */
+}
+
+/* --- フォントサイズ切り替え --- */
+body.font-small {
+  font-size: 14px;
+}
+
+body.font-medium {
+  font-size: 16px;
+}
+
+body.font-large {
+  font-size: 18px;
+}
+
+/* --- prose（Tailwind Typography）カスタム --- */
+.prose {
+  --tw-prose-headings: #192349;
+  --tw-prose-links: #5136a7;
+  --tw-prose-bold: #18191a;
+  --tw-prose-bullets: #b072ff;
+  --tw-prose-hr: #e3e8fc;
+  --tw-prose-table-borders: #ccd5f2;
+  max-width: 100vw !important;
+  font-size: 1.05rem;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* --- テーブル装飾 --- */
+.prose table {
+  border-radius: 0.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 8px #a7a9bc18;
+}
+
+.prose th, .prose td {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e6e8f5;
+  font-size: 0.97em;
+  word-break: break-word;
+}
+
+.prose thead {
+  background: #f7f8fa;
+}
+
+.prose tbody tr {
+  background: #fff;
+}
+
+/* --- pre, blockquote, 画像 --- */
+.prose pre {
+  background: #24292f;
+  color: #f5f7fa;
+  padding: 1.2em;
+  border-radius: 0.6em;
+  font-size: 0.96em;
+  overflow-x: auto;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.prose blockquote {
+  border-left: 4px solid #b072ff;
+  padding-left: 1em;
+  color: #666;
+  background: #f8f5ff;
+  border-radius: 0.4em;
+  font-style: italic;
+}
+
+.prose img {
+  border-radius: 1em;
+  box-shadow: 0 2px 14px #19234914;
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* --- video対応も追記（安全策） --- */
+.prose video {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* --- スマホ横スクロール対応: テーブルのみ --- */
+/* テーブルラッパー */
+.table-scroll {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1.5em;
+  box-sizing: border-box;
+  padding-bottom: 1px; /* iOSバグ対策 */
+}
+
+/* テーブル本体は必要ならmax-contentだが…横幅拡張を徹底的に親で制限 */
+.table-scroll table {
+  width: max-content;
+  min-width: 400px;    /* 任意：小さな表が潰れる時のみ調整 */
+  border-collapse: separate;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* --- その他 --- */
+hr {
+  border: none;
+  border-top: 1px solid #e3e8fc;
+  margin: 2em 0;
+}
+
+/* --- アニメーション --- */
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+
+/* --- 横スクロール完全封じ（親要素ごと徹底ロック） --- */
+html, body, #__next, main {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }

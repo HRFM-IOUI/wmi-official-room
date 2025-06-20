@@ -35,10 +35,16 @@ export default function WanNyanFeed() {
         id: doc.id,
       }));
       setVideos(items);
+      // ★ 取得できているか
+      console.log("取得動画リスト", items);
     };
     fetchVideos();
   }, []);
 
+  // ★ 描画直前にも配列ログ
+  console.log("描画直前: videos", videos);
+
+  // --- 関数定義はここでまとめて ---
   const handleLike = async (id: string) => {
     if (liked[id]) return;
     await updateDoc(doc(db, "wannyanVideos", id), { likes: increment(1) });
@@ -86,20 +92,21 @@ export default function WanNyanFeed() {
 
   return (
     <section className="lg:hidden h-screen overflow-y-scroll snap-y snap-mandatory bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]">
+      {/* ★ 全体map直前にも */}
+      <div style={{color: '#c00', background: '#fff', padding: 4, fontSize: 11}}>
+        <b>動画件数: {videos.length}</b>
+        <pre style={{whiteSpace:'pre-wrap',fontSize:10}}>{JSON.stringify(videos, null, 2)}</pre>
+      </div>
       {videos.map((v, index) => {
-        const currentUrl = typeof window !== "undefined"
-          ? `${window.location.origin}/#${v.id}`
-          : "";
+        // ★ map内で必ずkeyやtype、urlを出す！
+        console.log("描画中: index", index, "id", v.id, "type", v.type, "url", v.url, typeof v.url);
 
-        const twitterShare = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-          v.title
-        )}&url=${encodeURIComponent(currentUrl)}`;
-        const facebookShare = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-          currentUrl
-        )}`;
-        const lineShare = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
-          currentUrl
-        )}`;
+        if (!v.url || typeof v.url !== "string") {
+          console.warn("動画URL異常値検出！", v);
+        }
+        const videoSrc = v.type === "firestore"
+          ? v.url
+          : `https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`;
 
         return (
           <div
@@ -112,23 +119,49 @@ export default function WanNyanFeed() {
               className="absolute inset-0 z-0"
               onClick={() => togglePlay(index)}
             >
-              {v.type === "firestore" ? (
-                <video
-                  ref={(el): void => {
-                    videoRefs.current[index] = el;
+              {/* ★仮の外部動画リンクボタン */}
+              {index === 0 && (
+                <button
+                  style={{
+                    position: "absolute", top: 8, left: 8, zIndex: 99, fontSize: 12, padding: 2,
+                    background: "#ff0", color: "#222", border: "1px solid #999", borderRadius: 5
                   }}
-                  src={v.url}
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  muted={muted}
-                  loop
-                  playsInline
-                />
+                  onClick={e => {
+                    e.stopPropagation();
+                    alert("サンプル動画で強制テスト！");
+                    window.open("https://www.w3schools.com/html/mov_bbb.mp4");
+                  }}
+                >[サンプル動画URLを開く]</button>
+              )}
+              {v.type === "firestore" ? (
+                <>
+                  {/* ★今使っているsrc値を画面右下に表示 */}
+                  <div style={{position:"absolute", bottom:8, right:8, color:"#0f0", fontSize:10, zIndex:88, background:'#111b', padding:'2px 6px', borderRadius:6}}>
+                    {videoSrc}
+                  </div>
+                  <video
+                    ref={(el): void => {
+                      videoRefs.current[index] = el;
+                    }}
+                    src={videoSrc}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    muted={muted}
+                    loop
+                    playsInline
+                    controls
+                    onError={e => {
+                      alert("動画の再生に失敗しました: " + videoSrc);
+                      console.error("VIDEO ERROR:", e, videoSrc, v);
+                    }}
+                    onLoadedData={() => {
+                      console.log("動画読み込み成功", videoSrc, v);
+                    }}
+                  />
+                </>
               ) : (
                 <iframe
-                  src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${
-                    muted ? 1 : 0
-                  }&loop=1&playlist=${v.url}`}
+                  src={videoSrc}
                   title={v.title}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
@@ -153,56 +186,6 @@ export default function WanNyanFeed() {
             <div className="absolute bottom-4 left-0 right-0 px-4 z-10">
               <VideoComments videoId={v.id} />
             </div>
-
-            {/* --- 再生/ミュート/シェアボタン --- */}
-            {v.type === "firestore" && (
-              <div className="absolute bottom-24 right-4 z-10 flex flex-col gap-3 items-end">
-                <button
-                  onClick={toggleMute}
-                  className="bg-[#f70031] text-white px-3 py-2 rounded-full text-sm font-bold hover:bg-[#ffd700] transition"
-                >
-                  {muted ? "🔇" : "🔊"}
-                </button>
-                <button
-                  onClick={() => togglePlay(index)}
-                  className="bg-[#f70031] text-white px-3 py-2 rounded-full text-sm font-bold hover:bg-[#ffd700] transition"
-                >
-                  {playing ? "⏸" : "▶️"}
-                </button>
-                <div className="flex flex-col gap-2 mt-2">
-                  <button
-                    onClick={handleCopy}
-                    className="bg-[#f70031] text-white px-3 py-1 rounded-full text-xs hover:bg-[#ffd700] transition"
-                  >
-                    📋 Copy
-                  </button>
-                  <a
-                    href={twitterShare}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#f70031] text-white px-3 py-1 rounded-full text-xs hover:bg-[#ffd700] transition"
-                  >
-                    🐦 Twitter
-                  </a>
-                  <a
-                    href={facebookShare}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#f70031] text-white px-3 py-1 rounded-full text-xs hover:bg-[#ffd700] transition"
-                  >
-                    📘 Facebook
-                  </a>
-                  <a
-                    href={lineShare}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#f70031] text-white px-3 py-1 rounded-full text-xs hover:bg-[#ffd700] transition"
-                  >
-                    📲 LINE
-                  </a>
-                </div>
-              </div>
-            )}
           </div>
         );
       })}

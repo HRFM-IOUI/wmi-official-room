@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../firebase";
 import { collection, getDocs, doc, updateDoc, increment } from "firebase/firestore";
@@ -17,7 +18,6 @@ export default function WanNyanFeed() {
   const [liked, setLiked] = useState<{ [id: string]: boolean }>({});
   const [muted, setMuted] = useState(true);
   const [playingIndex, setPlayingIndex] = useState<number | null>(0);
-
 
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
@@ -39,7 +39,7 @@ export default function WanNyanFeed() {
     fetchVideos();
   }, []);
 
-  // 先頭動画だけは強制的に再生！
+  // 先頭動画は強制的に再生
   useEffect(() => {
     if (videos.length > 0 && videoRefs.current[0]) {
       videoRefs.current[0]!.play();
@@ -112,6 +112,7 @@ export default function WanNyanFeed() {
             "
             style={{ margin: "40px 0" }}
           >
+            {/* ドラッグ用ハンドル */}
             <div
               className="absolute top-2 left-1/2 -translate-x-1/2 w-14 h-3 bg-gray-200 rounded-full opacity-70 z-30 cursor-grab active:opacity-100"
               style={{ touchAction: "none" }}
@@ -123,20 +124,48 @@ export default function WanNyanFeed() {
               style={{ cursor: "pointer" }}
             >
               {v.type === "firestore" ? (
-                <video
-                  ref={(el): void => {
-                    videoRefs.current[index] = el;
-                  }}
-                  src={v.url}
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  muted={muted}
-                  loop
-                  playsInline
-                  onPlay={() => setPlayingIndex(index)}
-                  onPause={() => setPlayingIndex(null)}
-                  controls={false}
-                />
+                <>
+                  {/* controls付けたまま、UIはフロートで上書き */}
+                  <video
+                    ref={(el): void => {
+                      videoRefs.current[index] = el;
+                    }}
+                    src={v.url}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    muted={muted}
+                    loop
+                    playsInline
+                    controls
+                    style={{
+                      // 必要に応じてUI隠したいなら↓
+                      // opacity: isActive ? 1 : 1,
+                      // zIndex: 1,
+                    }}
+                    onPlay={() => setPlayingIndex(index)}
+                    onPause={() => setPlayingIndex(null)}
+                  />
+                  {/* コントロールUIを上から被せる（動画操作は下に残してOK） */}
+                  {isActive && (
+                    <div
+                      className="absolute bottom-28 right-6 z-20 flex flex-col gap-3 items-end animate-fadeIn"
+                      style={{ pointerEvents: "auto" }}
+                    >
+                      <button
+                        onClick={e => { e.stopPropagation(); toggleMute(); }}
+                        className="bg-[#f70031] text-white px-3 py-2 rounded-full text-sm font-bold hover:bg-[#ffd700] transition"
+                      >
+                        {muted ? "🔇" : "🔊"}
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); togglePlay(index); }}
+                        className="bg-[#f70031] text-white px-3 py-2 rounded-full text-sm font-bold hover:bg-[#ffd700] transition"
+                      >
+                        {isActive ? "⏸" : "▶️"}
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <iframe
                   src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`}
@@ -147,28 +176,6 @@ export default function WanNyanFeed() {
                 />
               )}
             </div>
-            {isActive && v.type === "firestore" && (
-              <div
-                className="
-                  absolute bottom-28 right-6 z-10 flex flex-col gap-3 items-end
-                  animate-fadeIn
-                "
-                style={{ pointerEvents: "auto" }}
-              >
-                <button
-                  onClick={toggleMute}
-                  className="bg-[#f70031] text-white px-3 py-2 rounded-full text-sm font-bold hover:bg-[#ffd700] transition"
-                >
-                  {muted ? "🔇" : "🔊"}
-                </button>
-                <button
-                  onClick={() => togglePlay(index)}
-                  className="bg-[#f70031] text-white px-3 py-2 rounded-full text-sm font-bold hover:bg-[#ffd700] transition"
-                >
-                  {isActive ? "⏸" : "▶️"}
-                </button>
-              </div>
-            )}
             <div className="absolute bottom-20 left-4 z-10 text-white space-y-2">
               <div className="text-lg font-bold">{v.title}</div>
               <button

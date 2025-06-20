@@ -82,12 +82,14 @@ export default function WanNyanFeed() {
           <div
             key={v.id}
             id={v.id}
-            className="snap-start h-screen w-full flex flex-col justify-center items-center relative bg-black text-white"
+            className="snap-start w-full flex flex-col justify-center items-center relative bg-black text-white"
+            style={{ height: "calc(100vh - 64px)" }} // ← 高さを1.6cm短く
           >
             {/* --- 動画本体 --- */}
             <div
               className="absolute inset-0 z-0"
               onClick={() => togglePlay(index)}
+              style={{ height: "100%" }}
             >
               {index === 0 && (
                 <button
@@ -103,26 +105,22 @@ export default function WanNyanFeed() {
                 >[サンプル動画URLを開く]</button>
               )}
               {v.type === "firestore" ? (
-                <>
-                  <div style={{position:"absolute", bottom:8, right:8, color:"#0f0", fontSize:10, zIndex:88, background:'#111b', padding:'2px 6px', borderRadius:6}}>
-                    {videoSrc}
-                  </div>
-                  <video
-                    ref={(el): void => {
-                      videoRefs.current[index] = el;
-                    }}
-                    src={videoSrc}
-                    className="w-full h-full object-cover"
-                    autoPlay
-                    muted={muted}
-                    loop
-                    playsInline
-                    controls
-                    onError={e => {
-                      alert("動画の再生に失敗しました: " + videoSrc);
-                    }}
-                  />
-                </>
+                <video
+                  ref={(el): void => {
+                    videoRefs.current[index] = el;
+                  }}
+                  src={videoSrc}
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted={muted}
+                  loop
+                  playsInline
+                  controls
+                  onError={e => {
+                    alert("動画の再生に失敗しました: " + videoSrc);
+                  }}
+                  style={{ height: "100%" }}
+                />
               ) : (
                 <iframe
                   src={videoSrc}
@@ -130,6 +128,7 @@ export default function WanNyanFeed() {
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                   className="w-full h-full object-cover"
+                  style={{ height: "100%" }}
                 />
               )}
             </div>

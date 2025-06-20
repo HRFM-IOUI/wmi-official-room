@@ -83,7 +83,7 @@ export default function WanNyanFeed() {
             key={v.id}
             id={v.id}
             className="snap-start w-full flex flex-col justify-center items-center relative bg-black text-white"
-            style={{ height: "calc(100vh - 64px)" }} // ← 高さを1.6cm短く
+            style={{ height: "calc(100vh - 100px)" }} // ← 高さを1.6cm短く
           >
             {/* --- 動画本体 --- */}
             <div

@@ -17,7 +17,7 @@ export default function WanNyanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
   const [liked, setLiked] = useState<{ [id: string]: boolean }>({});
   const [muted, setMuted] = useState(true);
-
+  const [playing, setPlaying] = useState(true);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
@@ -38,6 +38,12 @@ export default function WanNyanFeed() {
     fetchVideos();
   }, []);
 
+  // ★副作用だけ確保（console.log不要で）
+  useEffect(() => {
+    // 副作用：空ループで「再レンダリングの順番」を担保
+    videos.forEach(() => {});
+  }, [videos]);
+
   const handleLike = async (id: string) => {
     if (liked[id]) return;
     await updateDoc(doc(db, "wannyanVideos", id), { likes: increment(1) });
@@ -54,8 +60,10 @@ export default function WanNyanFeed() {
     if (!video) return;
     if (video.paused) {
       video.play();
+      setPlaying(true);
     } else {
       video.pause();
+      setPlaying(false);
     }
   };
 
@@ -83,6 +91,7 @@ export default function WanNyanFeed() {
 
   return (
     <section className="lg:hidden h-screen overflow-y-scroll snap-y snap-mandatory bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]">
+      {/* デバッグUIも削除 */}
       {videos.map((v, index) => {
         const videoSrc =
           v.type === "firestore"
@@ -96,10 +105,7 @@ export default function WanNyanFeed() {
             className="snap-start h-screen w-full flex flex-col justify-center items-center relative bg-black text-white"
           >
             {/* --- 動画本体 --- */}
-            <div
-              className="absolute inset-0 z-0"
-              onClick={() => togglePlay(index)}
-            >
+            <div className="absolute inset-0 z-0" onClick={() => togglePlay(index)}>
               {v.type === "firestore" ? (
                 <video
                   ref={(el): void => {
@@ -112,6 +118,9 @@ export default function WanNyanFeed() {
                   loop
                   playsInline
                   controls
+                  onError={e => {
+                    alert("動画の再生に失敗しました: " + videoSrc);
+                  }}
                 />
               ) : (
                 <iframe

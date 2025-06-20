@@ -12,10 +12,11 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  databaseURL: `https://${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseio.com`, // 追加
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-export const storage = getStorage(app, "gs://room-demo-fb170"); // ←ここを明示的に
+export const storage = getStorage(app, "gs://room-demo-fb170"); // ←ここはバケットURLが適切ならそのままで問題なし

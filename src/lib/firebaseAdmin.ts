@@ -1,9 +1,9 @@
-import * as admin from 'firebase-admin'; // firebase-adminのインポート
+import * as admin from 'firebase-admin';
 import { ServiceAccount } from 'firebase-admin';
 
 // Firebaseの初期化
 if (!admin.apps.length) {
-  const serviceAccount = require("../../serviceAccountKey.json") as ServiceAccount;
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT as string) as ServiceAccount;
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });

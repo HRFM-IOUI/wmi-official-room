@@ -18,6 +18,7 @@ export default function WanNyanFeed() {
   const [liked, setLiked] = useState<{ [id: string]: boolean }>({});
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(true);
+
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
@@ -38,10 +39,14 @@ export default function WanNyanFeed() {
     fetchVideos();
   }, []);
 
-  // ★副作用だけ確保（console.log不要で）
+  // ★ 描画後に安全に再生（console.logなし！）
   useEffect(() => {
-    // 副作用：空ループで「再レンダリングの順番」を担保
-    videos.forEach(() => {});
+    if (videos.length > 0 && videoRefs.current[0]) {
+      setTimeout(() => {
+        videoRefs.current[0]?.play().catch(() => {});
+      }, 0);
+      setPlaying(true);
+    }
   }, [videos]);
 
   const handleLike = async (id: string) => {
@@ -91,12 +96,14 @@ export default function WanNyanFeed() {
 
   return (
     <section className="lg:hidden h-screen overflow-y-scroll snap-y snap-mandatory bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]">
-      {/* デバッグUIも削除 */}
+      <div style={{color: '#c00', background: '#fff', padding: 4, fontSize: 11}}>
+        <b>動画件数: {videos.length}</b>
+        <pre style={{whiteSpace:'pre-wrap',fontSize:10}}>{JSON.stringify(videos, null, 2)}</pre>
+      </div>
       {videos.map((v, index) => {
-        const videoSrc =
-          v.type === "firestore"
-            ? v.url
-            : `https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`;
+        const videoSrc = v.type === "firestore"
+          ? v.url
+          : `https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`;
 
         return (
           <div
@@ -105,23 +112,44 @@ export default function WanNyanFeed() {
             className="snap-start h-screen w-full flex flex-col justify-center items-center relative bg-black text-white"
           >
             {/* --- 動画本体 --- */}
-            <div className="absolute inset-0 z-0" onClick={() => togglePlay(index)}>
+            <div
+              className="absolute inset-0 z-0"
+              onClick={() => togglePlay(index)}
+            >
+              {index === 0 && (
+                <button
+                  style={{
+                    position: "absolute", top: 8, left: 8, zIndex: 99, fontSize: 12, padding: 2,
+                    background: "#ff0", color: "#222", border: "1px solid #999", borderRadius: 5
+                  }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    alert("サンプル動画で強制テスト！");
+                    window.open("https://www.w3schools.com/html/mov_bbb.mp4");
+                  }}
+                >[サンプル動画URLを開く]</button>
+              )}
               {v.type === "firestore" ? (
-                <video
-                  ref={(el): void => {
-                    videoRefs.current[index] = el;
-                  }}
-                  src={videoSrc}
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  muted={muted}
-                  loop
-                  playsInline
-                  controls
-                  onError={e => {
-                    alert("動画の再生に失敗しました: " + videoSrc);
-                  }}
-                />
+                <>
+                  <div style={{position:"absolute", bottom:8, right:8, color:"#0f0", fontSize:10, zIndex:88, background:'#111b', padding:'2px 6px', borderRadius:6}}>
+                    {videoSrc}
+                  </div>
+                  <video
+                    ref={(el): void => {
+                      videoRefs.current[index] = el;
+                    }}
+                    src={videoSrc}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    muted={muted}
+                    loop
+                    playsInline
+                    controls
+                    onError={e => {
+                      alert("動画の再生に失敗しました: " + videoSrc);
+                    }}
+                  />
+                </>
               ) : (
                 <iframe
                   src={videoSrc}

@@ -11,25 +11,25 @@ const PIECES = [
   {
     key: "tl",
     style: { top: 0, left: 0 },
-    initial: { x: "-120%", y: "-120%" },
+    initial: { x: "-160%", y: "-160%" },
     animate: { x: 0, y: 0 },
   },
   {
     key: "tr",
     style: { top: 0, left: "50%" },
-    initial: { x: "120%", y: "-120%" },
+    initial: { x: "160%", y: "-160%" },
     animate: { x: 0, y: 0 },
   },
   {
     key: "bl",
     style: { top: "50%", left: 0 },
-    initial: { x: "-120%", y: "120%" },
+    initial: { x: "-160%", y: "160%" },
     animate: { x: 0, y: 0 },
   },
   {
     key: "br",
     style: { top: "50%", left: "50%" },
-    initial: { x: "120%", y: "120%" },
+    initial: { x: "160%", y: "160%" },
     animate: { x: 0, y: 0 },
   },
 ];

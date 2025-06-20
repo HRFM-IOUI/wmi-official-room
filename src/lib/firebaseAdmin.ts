@@ -3,7 +3,7 @@ import { ServiceAccount } from 'firebase-admin';
 
 // Firebaseの初期化
 if (!admin.apps.length) {
-  const serviceAccount = require("../serviceAccountKey.json") as ServiceAccount;
+  const serviceAccount = require("../../serviceAccountKey.json") as ServiceAccount;
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });

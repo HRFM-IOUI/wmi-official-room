@@ -14,10 +14,9 @@ export default function WanNyanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
+  // 動画リスト取得
   useEffect(() => {
     const fetchVideos = async () => {
       const colRef = collection(db, "wannyanVideos");
@@ -31,44 +30,25 @@ export default function WanNyanFeed() {
     fetchVideos();
   }, []);
 
-  // 最初の動画自動再生
+  // 最初の動画だけは確実に再生
   useEffect(() => {
-    if (videos.length > 0 && containerRef.current) {
+    if (videos.length > 0 && videoRefs.current[0]) {
       setTimeout(() => {
-        setCurrentIndex(0);
-        containerRef.current?.scrollTo({ top: 0, behavior: "auto" });
+        videoRefs.current[0]?.play().catch(() => {});
       }, 0);
       setPlaying(true);
     }
   }, [videos]);
 
-  // スクロール位置でcurrentIndex自動更新
-  const handleScroll = () => {
-    if (!containerRef.current) return;
-    const snapEls = videoRefs.current;
-    const scrollTop = containerRef.current.scrollTop;
-    let bestIdx = 0;
-    let minDiff = Infinity;
-    snapEls.forEach((el, idx) => {
-      if (!el) return;
-      const diff = Math.abs(el.offsetTop - scrollTop);
-      if (diff < minDiff) {
-        minDiff = diff;
-        bestIdx = idx;
-      }
-    });
-    setCurrentIndex(bestIdx);
-  };
-
-  // 動画枠をタップして再生/一時停止
+  // 再生・一時停止
   const togglePlay = (index: number) => {
-    const el = videoRefs.current[index]?.querySelector("video") as HTMLVideoElement;
-    if (!el) return;
-    if (el.paused) {
-      el.play();
+    const video = videoRefs.current[index];
+    if (!video) return;
+    if (video.paused) {
+      video.play();
       setPlaying(true);
     } else {
-      el.pause();
+      video.pause();
       setPlaying(false);
     }
   };
@@ -76,19 +56,9 @@ export default function WanNyanFeed() {
   // ミュート切替
   const toggleMute = () => {
     setMuted((m) => !m);
-    videoRefs.current.forEach((wrap) => {
-      const v = wrap?.querySelector("video") as HTMLVideoElement;
+    videoRefs.current.forEach((v) => {
       if (v) v.muted = !muted;
     });
-  };
-
-  // インジケーターで上下にスクロール
-  const goTo = (idx: number) => {
-    const el = videoRefs.current[idx];
-    if (el && containerRef.current) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      setCurrentIndex(idx);
-    }
   };
 
   if (videos.length === 0) {
@@ -98,8 +68,7 @@ export default function WanNyanFeed() {
   }
 
   return (
-    <div
-      ref={containerRef}
+    <section
       className={`
         w-full min-h-screen
         overflow-y-scroll
@@ -107,20 +76,19 @@ export default function WanNyanFeed() {
         bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]
         flex flex-col items-center
         pb-16 pt-4
-        relative
       `}
       style={{
         scrollSnapType: "y mandatory",
         overscrollBehaviorY: "contain",
       }}
-      onScroll={handleScroll}
     >
       {videos.map((v, index) => {
         const isPC = typeof window !== "undefined" && window.innerWidth >= 1024;
+        // PCは中央に、スマホは全幅に
         return (
           <div
             key={v.id}
-            ref={el => { videoRefs.current[index] = el; }}
+            id={v.id}
             className={`
               snap-start
               flex flex-col justify-center items-center relative
@@ -138,7 +106,7 @@ export default function WanNyanFeed() {
               background: "#000",
             }}
           >
-            {/* 動画本体 */}
+            {/* 動画本体（PC/スマホ両対応） */}
             <div
               className="flex justify-center items-center w-full h-full"
               style={{
@@ -151,6 +119,9 @@ export default function WanNyanFeed() {
             >
               {v.type === "firestore" ? (
                 <video
+                  ref={(el): void => {
+                    videoRefs.current[index] = el;
+                  }}
                   src={v.url}
                   className={`
                     ${isPC ? "w-full h-full rounded-xl border border-white shadow-lg" : "w-full h-[calc(100vw*1.33)] rounded-none"}
@@ -162,10 +133,11 @@ export default function WanNyanFeed() {
                   playsInline
                   controls
                   style={{
+                    // 縦幅微調整：スマホは-100pxくらい、PCは高さfit
                     maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
                     background: "#111",
                   }}
-                  onError={() => {
+                  onError={e => {
                     alert("動画の再生に失敗しました。");
                   }}
                 />
@@ -185,43 +157,13 @@ export default function WanNyanFeed() {
                 />
               )}
             </div>
-            {/* タイトル */}
+            {/* タイトル表示 */}
             <div className="w-full text-center mt-4 mb-4">
               <div className="text-lg font-extrabold drop-shadow-md">{v.title}</div>
             </div>
-            {/* インジケーター：下（次へ） */}
-            {videos.length > 1 && index < videos.length - 1 && (
-              <button
-                className={`
-                  absolute bottom-4 left-1/2 -translate-x-1/2 z-20
-                  bg-gradient-to-r from-[#ffd700] to-[#f70031]
-                  text-white font-bold rounded-full px-6 py-2 shadow-lg
-                  animate-bounce
-                  hover:scale-105 transition-all
-                `}
-                onClick={() => goTo(index + 1)}
-              >
-                ↓ 次の動画
-              </button>
-            )}
-            {/* インジケーター：上（前へ） */}
-            {videos.length > 1 && index > 0 && (
-              <button
-                className={`
-                  absolute top-4 left-1/2 -translate-x-1/2 z-20
-                  bg-gradient-to-r from-[#ffd700] to-[#f70031]
-                  text-white font-bold rounded-full px-6 py-2 shadow-lg
-                  animate-bounce
-                  hover:scale-105 transition-all
-                `}
-                onClick={() => goTo(index - 1)}
-              >
-                ↑ 前の動画
-              </button>
-            )}
           </div>
         );
       })}
-    </div>
+    </section>
   );
 }

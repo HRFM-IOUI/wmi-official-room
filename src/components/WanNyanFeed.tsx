@@ -87,81 +87,89 @@ export default function WanNyanFeed() {
         // PCは中央に、スマホは全幅に
         return (
           <div
-            key={v.id}
-            id={v.id}
-            className={`
-              snap-start
-              flex flex-col justify-center items-center relative
-              bg-black text-white
-              transition-all duration-300
-              ${isPC ? "w-[560px] h-[80vh] my-16 rounded-2xl shadow-2xl border border-gray-200" : "w-full h-screen"}
-            `}
-            style={{
-              margin: isPC ? "48px auto" : "40px 0",
-              boxShadow: isPC
-                ? "0 8px 32px rgba(0,0,0,0.13), 0 1.5px 4px rgba(25,35,73,0.09)"
-                : undefined,
-              borderRadius: isPC ? 24 : undefined,
-              border: isPC ? "2px solid #fff" : undefined,
-              background: "#000",
-            }}
-          >
-            {/* 動画本体（PC/スマホ両対応） */}
-            <div
-              className="flex justify-center items-center w-full h-full"
-              style={{
-                minHeight: isPC ? "70vh" : "75vh",
-                maxHeight: isPC ? "75vh" : undefined,
-                paddingTop: isPC ? 0 : "6vw",
-                paddingBottom: isPC ? 0 : "6vw",
-              }}
-              onClick={() => togglePlay(index)}
-            >
-              {v.type === "firestore" ? (
-                <video
-                  ref={(el): void => {
-                    videoRefs.current[index] = el;
-                  }}
-                  src={v.url}
-                  className={`
-                    ${isPC ? "w-full h-full rounded-xl border border-white shadow-lg" : "w-full h-[calc(100vw*1.33)] rounded-none"}
-                    object-contain bg-black
-                  `}
-                  autoPlay
-                  muted={muted}
-                  loop
-                  playsInline
-                  controls
-                  style={{
-                    // 縦幅微調整：スマホは-100pxくらい、PCは高さfit
-                    maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
-                    background: "#111",
-                  }}
-                  onError={e => {
-                    alert("動画の再生に失敗しました。");
-                  }}
-                />
-              ) : (
-                <iframe
-                  src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`}
-                  title={v.title}
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                  className={`
-                    ${isPC ? "w-full h-full rounded-xl border border-white shadow-lg" : "w-full h-[calc(100vw*1.33)] rounded-none"}
-                    object-contain bg-black
-                  `}
-                  style={{
-                    maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
-                  }}
-                />
-              )}
-            </div>
-            {/* タイトル表示 */}
-            <div className="w-full text-center mt-4 mb-4">
-              <div className="text-lg font-extrabold drop-shadow-md">{v.title}</div>
-            </div>
-          </div>
+  key={v.id}
+  id={v.id}
+  className={`
+    snap-start flex flex-col justify-center items-center relative
+    transition-all duration-300
+    ${
+      isPC
+        ? "w-[560px] h-[80vh] my-16 rounded-2xl shadow-2xl border border-gray-200"
+        : "w-full h-screen bg-gradient-to-b from-[#f70031]/90 via-[#fff3] to-[#ffd700]/60 backdrop-blur-lg"
+    }
+  `}
+  style={{
+    margin: isPC ? "48px auto" : "40px 0",
+    boxShadow: isPC
+      ? "0 8px 32px rgba(0,0,0,0.13), 0 1.5px 4px rgba(25,35,73,0.09)"
+      : "0 4px 24px 0 #f7003120, 0 0.5px 2px #ffd70033",
+    borderRadius: isPC ? 24 : 20,
+    border: isPC ? "2px solid #fff" : "2.5px solid #f70031",
+    background: isPC ? "#000" : "transparent",
+  }}
+>
+  {/* 動画本体 */}
+  <div
+    className="flex justify-center items-center w-full h-full"
+    style={{
+      minHeight: isPC ? "70vh" : "75vh",
+      maxHeight: isPC ? "75vh" : undefined,
+      paddingTop: isPC ? 0 : "7vw",
+      paddingBottom: isPC ? 0 : "7vw",
+      // 下枠にだけ金の細線を追加する場合↓
+      borderBottom: isPC ? undefined : "2px solid #ffd700",
+    }}
+    onClick={() => togglePlay(index)}
+  >
+    {v.type === "firestore" ? (
+      <video
+        ref={(el) => {
+          videoRefs.current[index] = el;
+        }}
+        src={v.url}
+        className={`
+          ${isPC
+            ? "w-full h-full rounded-xl border border-white shadow-lg"
+            : "w-full h-[calc(100vw*1.33)] rounded-xl border border-[#f70031] shadow-md"
+          }
+          object-contain bg-black
+        `}
+        autoPlay
+        muted={muted}
+        loop
+        playsInline
+        controls
+        style={{
+          maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
+          background: "#111",
+        }}
+        onError={e => alert("動画の再生に失敗しました。")}
+      />
+    ) : (
+      <iframe
+        src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`}
+        title={v.title}
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+        className={`
+          ${isPC
+            ? "w-full h-full rounded-xl border border-white shadow-lg"
+            : "w-full h-[calc(100vw*1.33)] rounded-xl border border-[#f70031] shadow-md"
+          }
+          object-contain bg-black
+        `}
+        style={{
+          maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
+        }}
+      />
+    )}
+  </div>
+  {/* タイトル表示 */}
+  <div className="w-full text-center mt-4 mb-4">
+    <div className="text-lg font-extrabold drop-shadow-md">{v.title}</div>
+  </div>
+</div>
+
         );
       })}
     </section>

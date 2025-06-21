@@ -1,4 +1,3 @@
-// src/components/WanFeed.tsx
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../firebase";
@@ -16,7 +15,6 @@ export default function WanFeed() {
   const [active, setActive] = useState(0);
   const [muted, setMuted] = useState(true);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const touchY = useRef<number | null>(null);
 
   // 動画リスト取得
   useEffect(() => {
@@ -32,7 +30,8 @@ export default function WanFeed() {
     fetchVideos();
   }, []);
 
-  // スマホ: 縦スワイプ切り替え
+  // 縦スワイプ
+  const touchY = useRef<number | null>(null);
   const handleTouchStart = (e: React.TouchEvent) => {
     touchY.current = e.touches[0].clientY;
   };
@@ -40,75 +39,139 @@ export default function WanFeed() {
     if (touchY.current === null) return;
     const delta = e.changedTouches[0].clientY - touchY.current;
     if (Math.abs(delta) > 80) {
-      if (delta < 0 && active < videos.length - 1) setActive(a => a + 1);
-      if (delta > 0 && active > 0) setActive(a => a - 1);
+      if (delta < 0) {
+        setActive((a) => (a + 1) % videos.length);
+      }
+      if (delta > 0) {
+        setActive((a) => (a - 1 + videos.length) % videos.length);
+      }
     }
     touchY.current = null;
   };
 
-  // PC: キーボード＆ホイール対応
+  // PC用：↑↓キー対応
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown" && active < videos.length - 1) setActive(a => a + 1);
-      if (e.key === "ArrowUp" && active > 0) setActive(a => a - 1);
+    const handleKey = (e: KeyboardEvent) => {
+      if (videos.length < 2) return;
+      if (e.key === "ArrowDown") {
+        setActive((a) => (a + 1) % videos.length);
+      }
+      if (e.key === "ArrowUp") {
+        setActive((a) => (a - 1 + videos.length) % videos.length);
+      }
     };
-    const handleWheel = (e: WheelEvent) => {
-      if (e.deltaY > 0 && active < videos.length - 1) setActive(a => a + 1);
-      if (e.deltaY < 0 && active > 0) setActive(a => a - 1);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("wheel", handleWheel, { passive: false });
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("wheel", handleWheel);
-    };
-  }, [active, videos.length]);
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [videos.length]);
 
-  // 切り替えたら動画自動再生
+  // 再生/停止管理
   useEffect(() => {
-    const v = videoRefs.current[active];
-    if (v) {
-      v.currentTime = 0;
-      v.play().catch(() => {});
-      v.muted = muted;
-    }
-    videoRefs.current.forEach((vid, i) => {
-      if (i !== active && vid) vid.pause();
+    videos.forEach((v, i) => {
+      const videoEl = videoRefs.current[i];
+      if (!videoEl) return;
+      if (i === active) {
+        videoEl.currentTime = 0;
+        videoEl.play().catch(() => {});
+        videoEl.muted = muted;
+      } else {
+        videoEl.pause();
+      }
     });
   }, [active, muted, videos.length]);
 
   if (!videos.length) {
-    return <div className="text-center text-gray-600 py-20">Loading…</div>;
+    return <div className="text-center text-gray-600 py-20">動画を読み込み中…</div>;
   }
 
-  const v = videos[active];
+  // 前・今・次
+  const prev = (active - 1 + videos.length) % videos.length;
+  const next = (active + 1) % videos.length;
+
+  // クロスフェードスタイル
+  const base =
+    "absolute top-0 left-0 w-full h-full flex items-center justify-center transition-opacity duration-400";
+  const hiddenStyle = { opacity: 0, zIndex: 0, pointerEvents: "none" } as const;
+  const activeStyle = { opacity: 1, zIndex: 10, pointerEvents: "auto" } as const;
 
   return (
     <div
       className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-black"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      style={{
+        minHeight: "100vh",
+        minWidth: "100vw",
+        overflow: "hidden",
+        position: "fixed",
+        top: 0,
+        left: 0,
+      }}
     >
-      <video
-        ref={el => { videoRefs.current[active] = el; }}
-        src={v.type === "firestore" ? v.url : undefined}
-        className="w-full h-full object-cover"
-        autoPlay
-        muted={muted}
-        loop
-        playsInline
-        // controls={false}
-        onClick={() =>
-          videoRefs.current[active]?.paused
-            ? videoRefs.current[active]?.play()
-            : videoRefs.current[active]?.pause()
-        }
-        style={{ background: "#000" }}
-      />
-      {/* オーバーレイUI（タイトル・コントロール） */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 flex flex-col gap-2 bg-gradient-to-t from-black/60 to-transparent">
-        <div className="text-lg font-bold text-white drop-shadow">{v.title}</div>
+      {/* 前・今・次をクロスフェードで同時レンダ */}
+      <div className="relative w-full h-full" style={{ minHeight: "100vh" }}>
+        {/* 前 */}
+        <div
+          className={base}
+          style={prev === active ? activeStyle : hiddenStyle}
+        >
+          <video
+            ref={(el) => {
+              if (el) videoRefs.current[prev] = el;
+            }}
+            src={videos[prev].type === "firestore" ? videos[prev].url : undefined}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted={muted}
+            loop
+            playsInline
+            style={{ background: "#000" }}
+          />
+        </div>
+        {/* 今 */}
+        <div
+          className={base}
+          style={activeStyle}
+        >
+          <video
+            ref={(el) => {
+              if (el) videoRefs.current[active] = el;
+            }}
+            src={videos[active].type === "firestore" ? videos[active].url : undefined}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted={muted}
+            loop
+            playsInline
+            style={{ background: "#000" }}
+          />
+          {/* オーバーレイUI */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 flex flex-col gap-2 bg-gradient-to-t from-black/60 to-transparent">
+            <div className="text-lg font-bold text-white drop-shadow">
+              {videos[active].title}
+            </div>
+          </div>
+        </div>
+        {/* 次 */}
+        <div
+          className={base}
+          style={next === active ? activeStyle : hiddenStyle}
+        >
+          <video
+            ref={(el) => {
+              if (el) videoRefs.current[next] = el;
+            }}
+            src={videos[next].type === "firestore" ? videos[next].url : undefined}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted={muted}
+            loop
+            playsInline
+            style={{ background: "#000" }}
+          />
+        </div>
       </div>
+
+      {/* コントロールUI */}
       <div className="absolute top-4 right-4 flex flex-col gap-4 items-center">
         <button
           onClick={() => setMuted((m) => !m)}
@@ -122,28 +185,8 @@ export default function WanFeed() {
         </button>
       </div>
       {/* スワイプ案内 */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-xl opacity-60 select-none pointer-events-none">
-        {active > 0 && <span>↑</span>}
-        {active < videos.length - 1 && <span>↓</span>}
-      </div>
-      {/* PC用ナビゲーションボタン */}
-      <div className="hidden sm:flex absolute left-8 right-8 bottom-10 justify-between pointer-events-none">
-        {active > 0 && (
-          <button
-            className="pointer-events-auto px-4 py-2 rounded-xl bg-white/60 text-black text-lg font-semibold shadow hover:bg-white/90"
-            onClick={() => setActive(a => a - 1)}
-          >
-            ◀ Prev
-          </button>
-        )}
-        {active < videos.length - 1 && (
-          <button
-            className="pointer-events-auto px-4 py-2 rounded-xl bg-white/60 text-black text-lg font-semibold shadow hover:bg-white/90"
-            onClick={() => setActive(a => a + 1)}
-          >
-            Next ▶
-          </button>
-        )}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-2xl opacity-60 select-none pointer-events-none">
+        <span className="mx-2">↑ 縦スワイプ ↓</span>
       </div>
     </div>
   );

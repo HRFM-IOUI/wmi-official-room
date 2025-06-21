@@ -194,6 +194,23 @@ export default function HeroSection({
         </motion.div>
       )}
 
+      {/* --- GridCarousel --- */}
+      <AnimatePresence>
+        {stage === "grid" && (
+          <motion.div
+            key="hero-grid"
+            initial={{ opacity: 0, y: 44, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 36, scale: 0.95 }}
+            transition={{ duration: 0.9, ease: "easeInOut" }}
+            className="w-full flex justify-center mt-12 z-0"
+          >
+            <div className="w-full max-w-5xl px-2">
+              <GridCarousel />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

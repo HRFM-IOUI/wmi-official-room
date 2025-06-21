@@ -8,8 +8,11 @@ import Image from "next/image";
 
 // カードデータ例（自由に増減OK）
 const gridCards = [
-  { id: 1, title: "ようこそ/ありがとう", type: "video", src: "/wmifuture01.mp4" },
-  { id: 2, title: "Welcome/Thank you", type: "image", src: "/fixstarttiming.mp4" },
+  { id: 1, title: "", type: "video", src: "/wmifuture01.mp4" },
+  { id: 2, title: "", type: "video", src: "/fixstarttiming.mp4" },
+  { id: 3, title: "", type: "video", src: "/catui.mp4" },
+  { id: 4, title: "", type: "video", src: "/demo5.mp4" },
+  { id: 5, title: "", type: "video", src: "/communityroom.mp4" },
 
 
   // 必要に繰り返し増やせます

@@ -6,17 +6,17 @@ import "swiper/css/free-mode";
 import "swiper/css/autoplay";
 import Image from "next/image";
 
-// カードデータ例（自由に増減OK）
+// カードデータ例
 const gridCards = [
   { id: 1, title: "", type: "video", src: "/wmifuture01.mp4" },
   { id: 2, title: "", type: "video", src: "/fixstarttiming.mp4" },
   { id: 3, title: "", type: "video", src: "/catui.mp4" },
   { id: 4, title: "", type: "video", src: "/demo5.mp4" },
   { id: 5, title: "", type: "video", src: "/communityroom.mp4" },
-
-
   // 必要に繰り返し増やせます
 ];
+
+const VIDEO_CAPTION = "This video shows a development version of R∞M.";
 
 export default function GridCarousel() {
   return (
@@ -47,15 +47,20 @@ export default function GridCarousel() {
           <SwiperSlide
             key={card.id}
             className="flex flex-col items-center card-glass mx-2 flex-shrink-0"
-            style={{ height: 210, minWidth: 148, maxWidth: 200 }}
+            style={{ 
+              // スマホ: 160, PC: 210
+              height: 'clamp(160px, 19vw, 210px)', 
+              minWidth: 140, 
+              maxWidth: 220 
+            }}
           >
             {/* 画像・GIF・動画 対応 */}
             {card.type === "image" && (
               <Image
                 src={card.src}
                 alt={card.title}
-                width={88}
-                height={88}
+                width={168}
+                height={168}
                 className="rounded-xl object-cover mb-3"
                 draggable={false}
                 unoptimized
@@ -65,8 +70,8 @@ export default function GridCarousel() {
               <img
                 src={card.src}
                 alt={card.title}
-                width={88}
-                height={88}
+                width={168}
+                height={168}
                 className="rounded-xl object-cover mb-3"
                 draggable={false}
                 style={{ aspectRatio: "1/1" }}
@@ -75,19 +80,31 @@ export default function GridCarousel() {
             {card.type === "video" && (
               <video
                 src={card.src}
-                width={88}
-                height={88}
-                className="rounded-xl object-cover mb-3"
-                style={{ background: "#111", aspectRatio: "1/1" }}
+                width={168}
+                height={168}
+                className="rounded-xl object-cover mb-2"
+                style={{
+                  background: "#111", 
+                  aspectRatio: "1/1", 
+                  maxHeight: "160px", // スマホ向け
+                  maxWidth: "100%", 
+                  minHeight: "90px",
+                }}
                 controls={false}
                 autoPlay
                 muted
                 loop
                 playsInline
                 draggable={false}
+                preload="metadata"
               />
             )}
-            <span className="text-sm font-semibold text-slate-800 text-center">{card.title}</span>
+            <span className="block text-xs text-slate-500 text-center mt-0.5 px-1 italic leading-tight">
+              {card.type === "video" && VIDEO_CAPTION}
+            </span>
+            {card.title && (
+              <span className="text-sm font-semibold text-slate-800 text-center mt-1">{card.title}</span>
+            )}
           </SwiperSlide>
         ))}
       </Swiper>

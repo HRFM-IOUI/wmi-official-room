@@ -13,7 +13,6 @@ type WanNyanVideo = {
 export default function WanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
   const [muted, setMuted] = useState(true);
-  const [current, setCurrent] = useState(0);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   // 動画リスト取得
@@ -30,29 +29,13 @@ export default function WanFeed() {
     fetchVideos();
   }, []);
 
-  // 動画切り替え時に自動再生
+  // 各動画を画面内に入ったら自動再生（Intersection Observerでガチ再現も可！）
   useEffect(() => {
-    if (videoRefs.current[current]) {
-      setTimeout(() => {
-        videoRefs.current[current]?.play().catch(() => {});
-      }, 100);
-    }
-  }, [current, videos]);
-
-  // スワイプ判定
-  const touchStartY = useRef(0);
-  const touchEndY = useRef(0);
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-  };
-  const handleTouchEnd = () => {
-    const delta = touchStartY.current - touchEndY.current;
-    if (delta > 50 && current < videos.length - 1) setCurrent((c) => c + 1); // 下→上
-    if (delta < -50 && current > 0) setCurrent((c) => c - 1); // 上→下
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndY.current = e.touches[0].clientY;
-  };
+    videos.forEach((_, idx) => {
+      const v = videoRefs.current[idx];
+      if (v) v.muted = muted;
+    });
+  }, [videos, muted]);
 
   if (videos.length === 0) {
     return (
@@ -62,63 +45,59 @@ export default function WanFeed() {
     );
   }
 
-  const v = videos[current];
-  const videoSrc =
-    v.type === "firestore"
-      ? v.url
-      : `https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`;
-
   return (
     <section
-      className="w-screen h-screen flex items-center justify-center bg-black"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      className="w-full h-screen overflow-y-scroll snap-y snap-mandatory bg-black"
       style={{
-        overflow: "hidden",
-        touchAction: "pan-y",
-        WebkitOverflowScrolling: "touch",
+        scrollSnapType: "y mandatory",
+        overscrollBehaviorY: "contain",
       }}
     >
-      <div className="absolute inset-0 z-0 w-full h-full flex items-center justify-center">
-        {v.type === "firestore" ? (
-          <video
-            ref={(el) => {
-              videoRefs.current[current] = el;
+      {videos.map((v, index) => (
+        <div
+          key={v.id}
+          className="snap-start w-full h-screen flex flex-col justify-center items-center relative"
+          style={{
+            background: "#000",
+          }}
+        >
+          <div
+            className="absolute inset-0 z-0 flex items-center justify-center"
+            onClick={() => {
+              const video = videoRefs.current[index];
+              if (video?.paused) video.play();
+              else video?.pause();
             }}
-            src={videoSrc}
-            className="w-full h-full object-contain bg-black"
-            autoPlay
-            muted={muted}
-            loop
-            playsInline
-            controls
-            style={{ background: "#000" }}
-            onError={() => alert("動画の再生に失敗しました")}
-          />
-        ) : (
-          <iframe
-            src={videoSrc}
-            title={v.title}
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-            className="w-full h-full object-contain bg-black"
-            style={{ background: "#000" }}
-          />
-        )}
-      </div>
-      {/* タイトルを下部オーバーレイで表示 */}
-      <div
-        className="absolute bottom-10 w-full text-center z-10"
-        style={{
-          color: "#fff",
-          textShadow: "0 2px 10px #000a",
-          fontWeight: 700,
-          fontSize: "1.3rem",
-        }}
-      >
-        {v.title}
-      </div>
+          >
+            {v.type === "firestore" ? (
+              <video
+                ref={el => { videoRefs.current[index] = el; }}
+                src={v.url}
+                className="w-full h-full object-cover"
+                autoPlay
+                muted={muted}
+                loop
+                playsInline
+                controls
+                style={{ background: "#000" }}
+              />
+            ) : (
+              <iframe
+                src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`}
+                title={v.title}
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                className="w-full h-full object-cover"
+                style={{ background: "#000" }}
+              />
+            )}
+          </div>
+          {/* タイトルを下部に表示 */}
+          <div className="absolute bottom-12 left-0 w-full text-center z-10">
+            <span className="text-lg font-bold text-white drop-shadow">{v.title}</span>
+          </div>
+        </div>
+      ))}
     </section>
   );
 }

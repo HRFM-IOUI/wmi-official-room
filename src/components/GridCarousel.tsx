@@ -8,11 +8,11 @@ import Image from "next/image";
 
 // カードデータ例
 const gridCards = [
-  { id: 1, title: "This", type: "video", src: "/wmifuture01.mp4" },
-  { id: 2, title: "video", type: "video", src: "/genkou.mp4" },
-  { id: 3, title: "shows", type: "video", src: "/catui.mp4" },
-  { id: 4, title: "devlopment", type: "video", src: "/demo5.mp4" },
-  { id: 5, title: "version", type: "video", src: "/communityroom.mp4" },
+  { id: 1, title: "Development Footage", type: "video", src: "/wmifuture01.mp4" },
+  { id: 2, title: "Development Footage", type: "video", src: "/genkou.mp4" },
+  { id: 3, title: "Development Footage", type: "gif", src: "/MobileCatUI.gif" },
+  { id: 4, title: "Development Footage", type: "gif", src: "/dashboard.gif" },
+  { id: 5, title: "Development Footage", type: "gif", src: "/roomchat.gif" },
   // 必要に繰り返し増やせます
 ];
 

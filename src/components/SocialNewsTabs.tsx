@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { FaXTwitter } from "react-icons/fa6"; // X公式アイコン
 
 const TABS = ["Social Media", "Announcements", "Events"];
 
@@ -40,24 +41,32 @@ export default function SocialNewsTabs() {
         {/* Tab Content */}
         <div>
           {active === 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-              {/* Social Media Cards */}
-              {["X (formerly Twitter)", "Facebook", "YouTube"].map((social, index) => (
-                <div
-                  key={index}
-                  className="bg-white shadow-xl rounded-xl p-5 flex flex-col items-center hover:scale-105 transition"
+            <div className="flex flex-col items-center justify-center">
+              {/* Xカードのみ */}
+              <div
+                className="bg-white/90 shadow-2xl rounded-2xl p-8 flex flex-col items-center
+                border border-[#f5f5f9] hover:scale-105 transition group
+                max-w-xs mx-auto"
+                style={{
+                  boxShadow: "0 6px 32px #0004, 0 1.5px 4px #f7003133",
+                }}
+              >
+                <span className="mb-4 flex items-center gap-2">
+                  <FaXTwitter className="text-3xl text-[#1cb5e0] group-hover:scale-110 transition" />
+                  <span className="font-extrabold text-lg text-[#192349] tracking-wide">
+                    X (formerly Twitter)
+                  </span>
+                </span>
+                <a
+                  href="https://twitter.com/wondermetanism" // ←ご自身のXアカウントURLに変更！
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 px-6 py-2 rounded-full font-bold text-white bg-gradient-to-r from-[#1cb5e0] to-[#000851] shadow hover:scale-105 transition"
+                  style={{ letterSpacing: "0.04em" }}
                 >
-                  <span className="font-bold text-[#f70031] mb-3">{social}</span>
-                  <a
-                    href={`https://${social.toLowerCase().replace(" (formerly twitter)", "").replace(" ", "")}.com/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#ffd700] font-semibold hover:underline"
-                  >
-                    View Official Timeline
-                  </a>
-                </div>
-              ))}
+                  View X Timeline
+                </a>
+              </div>
             </div>
           )}
 

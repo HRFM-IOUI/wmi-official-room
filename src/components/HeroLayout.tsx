@@ -27,9 +27,10 @@ function VideoExperienceSection() {
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-[-40%] top-0 w-[180%] h-[40%] bg-gradient-to-r from-white/40 via-white/70 to-white/40 blur-2xl opacity-30 animate-gloss" />
       </div>
-      {/* 上メッセージ */}
-      <p className="pt-6 text-center text-slate-800 font-bold text-lg tracking-wide drop-shadow">
+      {/* 上メッセージ（立体＆閃光） */}
+      <p className="relative pt-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-[#f70031] via-yellow-400 to-blue-600 bg-clip-text shine-effect">
         Vertical &amp; horizontal swipe demo
+        <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow"></span>
       </p>
       {/* ROOMボタン */}
       <div className="flex items-center justify-center gap-8 py-10 select-none">
@@ -84,11 +85,12 @@ function VideoExperienceSection() {
           M
         </span>
       </div>
-      {/* 下メッセージ */}
-      <p className="pb-6 text-center text-slate-800 font-bold text-lg tracking-wide drop-shadow">
+      {/* 下メッセージ（立体＆閃光） */}
+      <p className="relative pb-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-[#f70031] via-yellow-400 to-blue-600 bg-clip-text shine-effect">
         Let&#39;s try R∞M video UI!
+        <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow"></span>
       </p>
-      {/* 光沢アニメーション用スタイル */}
+      {/* 光沢アニメーション用スタイル＋shineエフェクト */}
       <style>{`
         @keyframes gloss {
           0% { left: -60%; }
@@ -96,6 +98,31 @@ function VideoExperienceSection() {
         }
         .animate-gloss {
           animation: gloss 4s linear infinite;
+        }
+
+        /* 立体＆閃光エフェクト */
+        .drop-shadow-lg {
+          text-shadow:
+            0 2px 8px rgba(0,0,0,0.14),
+            0 6px 24px rgba(0,0,0,0.13);
+        }
+        .shine-effect {
+          position: relative;
+          overflow: hidden;
+        }
+        .shine-glow {
+          background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.7) 50%, transparent 80%);
+          position: absolute;
+          top: 0; left: -75%;
+          width: 50%; height: 100%;
+          transform: skewX(-20deg);
+          animation: shineMove 2.8s cubic-bezier(0.77,0,0.175,1) infinite;
+          pointer-events: none;
+        }
+        @keyframes shineMove {
+          0%   { left: -75%; }
+          60%  { left: 120%; }
+          100% { left: 120%; }
         }
       `}</style>
     </section>
@@ -126,16 +153,13 @@ export default function HeroLayout() {
         <VideoExperienceSection />
         <SocialNewsTabs />
       </main>
-
       {/* セクション区切り */}
       <div className="w-full h-0.5 sm:h-1 mt-6 sm:mt-10 bg-gradient-to-r from-gray-100 to-gray-300" />
-
       {/* フローティングボタン */}
       <FloatingButtons
         onOpenAccessibility={() => setAccessibilityOpen(true)}
         onOpenNavigation={() => setNavigationOpen(true)}
       />
-
       {/* アクセシビリティモーダル */}
       {isAccessibilityOpen && (
         <div
@@ -153,7 +177,6 @@ export default function HeroLayout() {
           </div>
         </div>
       )}
-
       {/* ナビゲーションモーダル */}
       {isNavigationOpen && (
         <div

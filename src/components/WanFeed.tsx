@@ -1,9 +1,7 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { useInView } from "react-intersection-observer";
 
 type WanNyanVideo = {
   id: string;
@@ -14,7 +12,11 @@ type WanNyanVideo = {
 
 export default function WanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
+  const [active, setActive] = useState(0);
+  const [muted, setMuted] = useState(true);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
+  // 動画リスト取得
   useEffect(() => {
     const fetchVideos = async () => {
       const colRef = collection(db, "wannyanVideos");
@@ -28,105 +30,105 @@ export default function WanFeed() {
     fetchVideos();
   }, []);
 
-  if (videos.length === 0) {
-    return (
-      <div className="text-center text-gray-600 py-20">動画を読み込み中…</div>
-    );
+  // スワイプで切り替え
+  const touchY = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchY.current = e.touches[0].clientY;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchY.current === null) return;
+    const delta = e.changedTouches[0].clientY - touchY.current;
+    if (Math.abs(delta) > 80) {
+      if (delta < 0) setActive(a => (a + 1) % videos.length); // 無限ループ
+      if (delta > 0) setActive(a => (a - 1 + videos.length) % videos.length); // 無限ループ
+    }
+    touchY.current = null;
+  };
+
+  // 前後動画も同時にレンダリング＆事前バッファ
+  useEffect(() => {
+    videos.forEach((_, i) => {
+      const v = videoRefs.current[i];
+      if (!v) return;
+      if (i === active) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+        v.muted = muted;
+      } else {
+        v.pause();
+        v.currentTime = 0;
+      }
+    });
+  }, [active, muted, videos.length]);
+
+  if (!videos.length) {
+    return <div className="text-center text-gray-600 py-20">動画を読み込み中…</div>;
   }
 
   return (
-    <section
-      className="
-        w-full min-h-screen overflow-y-scroll
-        snap-y snap-mandatory
-        bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]
-        flex flex-col items-center pb-16 pt-4
-      "
-      style={{
-        scrollSnapType: "y mandatory",
-        overscrollBehaviorY: "contain",
-      }}
-    >
-      {videos.map((v, idx) => (
-        <VideoBlock key={v.id} v={v} />
-      ))}
-    </section>
-  );
-}
-
-// ▼1ブロックごと
-function VideoBlock({ v }: { v: WanNyanVideo }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  // Intersection Observer
-  const { ref, inView } = useInView({
-    threshold: 0.6, // 60%見えてたら再生
-    triggerOnce: false,
-  });
-
-  // 見えてたら再生、外れたら一時停止
-  useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      if (inView) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    }
-  }, [inView]);
-
-  return (
     <div
-      ref={ref}
-      className="
-        snap-start w-full flex flex-col justify-center items-center relative
-        bg-black bg-opacity-80
-      "
-      style={{
-        height: "calc(100vh - 100px)",
-        padding: "36px 0",
-      }}
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      style={{ overflow: "hidden" }}
     >
-      <div
-        className="
-          w-[94vw] max-w-lg aspect-video rounded-2xl shadow-xl
-          flex items-center justify-center relative border-4 border-[#fff5]
-        "
-        style={{
-          margin: "0 auto",
-          background: "linear-gradient(120deg,#f70031cc 0%,#ffd700bb 100%)",
-          boxShadow: "0 6px 32px #f7003166, 0 1.5px 4px #ffd70066",
-        }}
-      >
-        {v.type === "firestore" ? (
+      {/* 全動画を重ねて配置、見えるのはactiveと前後だけ */}
+      {videos.map((v, i) => {
+        // 「今・前・次」以外は完全非表示にしてパフォーマンス確保
+        const show =
+          i === active ||
+          i === (active - 1 + videos.length) % videos.length ||
+          i === (active + 1) % videos.length;
+        return (
           <video
-            ref={videoRef}
-            src={v.url}
-            className="w-full h-full object-contain rounded-2xl bg-black"
+            key={v.id}
+            ref={el => {
+              videoRefs.current[i] = el;
+            }}
+            src={v.type === "firestore" ? v.url : undefined}
+            className={`
+              absolute w-full h-full object-cover
+              transition-opacity duration-300
+              ${i === active ? "opacity-100 z-20" : show ? "opacity-0 z-10" : "opacity-0 pointer-events-none z-0"}
+            `}
+            autoPlay={i === active}
+            muted={muted}
             loop
-            muted
             playsInline
-            controls
+            // controls={false}
             style={{
-              background: "#000d",
-              maxHeight: "70vh",
-            }}
-            onError={() => alert("動画の再生に失敗しました")}
-          />
-        ) : (
-          <iframe
-            src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=1&loop=1&playlist=${v.url}`}
-            title={v.title}
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-            className="w-full h-full object-contain rounded-2xl bg-black"
-            style={{
-              maxHeight: "70vh",
+              background: "#000",
+              left: 0,
+              top: 0,
             }}
           />
+        );
+      })}
+      {/* オーバーレイUI（タイトル・コントロール） */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 flex flex-col gap-2 bg-gradient-to-t from-black/60 to-transparent z-30 pointer-events-none">
+        <div className="text-lg font-bold text-white drop-shadow">{videos[active].title}</div>
+      </div>
+      <div className="absolute top-4 right-4 flex flex-col gap-4 items-center z-30">
+        <button
+          onClick={() => setMuted((m) => !m)}
+          className="w-9 h-9 rounded-full bg-black/40 flex items-center justify-center pointer-events-auto"
+        >
+          {muted ? (
+            <span className="text-white text-2xl">🔇</span>
+          ) : (
+            <span className="text-white text-2xl">🔊</span>
+          )}
+        </button>
+      </div>
+      {/* スワイプ案内 */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-3xl opacity-40 select-none pointer-events-none z-30">
+        {videos.length > 1 && (
+          <>
+            <div>{active > 0 || true ? "↑" : ""}</div>
+            <div>{active < videos.length - 1 || true ? "↓" : ""}</div>
+          </>
         )}
       </div>
-      <div className="mt-4 text-lg font-bold text-white drop-shadow">{v.title}</div>
     </div>
   );
 }

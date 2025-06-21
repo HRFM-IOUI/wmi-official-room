@@ -2,11 +2,39 @@
 import React, { useState, useEffect } from "react";
 import HeroSection from "./HeroSection";
 import Greeting from "./Greeting";
-import WanNyanFeed from "./WanNyanFeed";
+// import WanNyanFeed from "./WanNyanFeed"; // ←ここ外す！
 import SocialNewsTabs from "./SocialNewsTabs";
 import AccessibilityModal from "./AccessibilityModal";
 import NavigationModal from "./NavigationModal";
 import FloatingButtons from "./FloatingButtons";
+
+// ★追加：体験ボタン専用コンポーネント
+function VideoExperienceButtons() {
+  return (
+    <div className="flex items-center justify-center gap-6 my-12">
+      {/* R */}
+      <span className="text-2xl font-extrabold tracking-widest text-[#f70031]">R</span>
+      {/* 縦スワイプ体験 */}
+      <a
+        href="/wan"
+        className="w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br from-[#f70031] to-[#ffd700] shadow-xl hover:scale-110 transition"
+        title="縦スワイプ動画体験"
+      >
+        <span className="text-white text-3xl font-bold">↕</span>
+      </a>
+      {/* 横スワイプ体験 */}
+      <a
+        href="/nyan"
+        className="w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br from-[#1cb5e0] to-[#000851] shadow-xl hover:scale-110 transition"
+        title="横スワイプ動画体験"
+      >
+        <span className="text-white text-3xl font-bold">↔</span>
+      </a>
+      {/* M */}
+      <span className="text-2xl font-extrabold tracking-widest text-[#f70031]">M</span>
+    </div>
+  );
+}
 
 export default function HeroLayout() {
   const [clientWidth, setClientWidth] = useState<number | null>(null);
@@ -28,7 +56,9 @@ export default function HeroLayout() {
       <main className="flex flex-col items-center w-full max-w-full px-4 sm:px-6 lg:mx-auto lg:max-w-[1500px] transition-all">
         <HeroSection />
         <Greeting />
-        <WanNyanFeed />
+        {/* ↓ここ！体験ボタン */}
+        <VideoExperienceButtons />
+        {/* <WanNyanFeed /> ←もう使わない */}
         <SocialNewsTabs />
       </main>
 

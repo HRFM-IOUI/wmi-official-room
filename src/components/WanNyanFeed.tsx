@@ -165,13 +165,13 @@ export default function VideoUIExperience() {
           aria-label="縦スワイプ体験"
           onClick={() => setShowVertical(true)}
         >
-          <span className="text-white text-2xl font-bold">↓</span>
+          <span className="text-white text-2xl font-bold">↑</span>
         </button>
         <span className="text-3xl sm:text-4xl font-black text-[#f70031] drop-shadow">M</span>
       </div>
 
       <div className="text-lg sm:text-xl font-semibold mb-4 text-[#222]">
-        体験したい動画UIを選んでください！
+        Please select the video UI you would like to experience.！
       </div>
 
       {/* 横スワイプ体験モーダル */}

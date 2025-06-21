@@ -73,7 +73,7 @@ export default function WanNyanFeed() {
         w-full min-h-screen
         overflow-y-scroll
         snap-y snap-mandatory
-        bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]
+        bg-gradient-to-b from-[#222] via-[#333] to-[#111]
         flex flex-col items-center
         pb-16 pt-4
       `}
@@ -92,23 +92,24 @@ export default function WanNyanFeed() {
             className={`
               snap-start flex flex-col justify-center items-center relative
               transition-all duration-300
-              ${
-                isPC
-                  ? "w-[560px] h-[80vh] my-16 rounded-2xl shadow-2xl border border-gray-200 bg-black"
-                  : "w-full h-screen bg-gradient-to-b from-[#f70031CC] via-[#fff7] to-[#ffd700BB] backdrop-blur-md border-t-2 border-b-2 border-[#ffd70077]"
+              ${isPC
+                ? "w-[560px] h-[80vh] my-16 rounded-2xl shadow-2xl border border-gray-200"
+                : "w-full h-screen"
               }
+              bg-black/90 backdrop-blur-md
             `}
             style={{
               margin: isPC ? "48px auto" : "40px 0",
               boxShadow: isPC
                 ? "0 8px 32px rgba(0,0,0,0.13), 0 1.5px 4px rgba(25,35,73,0.09)"
-                : "0 8px 24px #f7003140, 0 -8px 24px #ffd70040",
+                : "0 8px 24px #1119, 0 -8px 24px #1119",
               borderRadius: isPC ? 24 : 24,
               border: isPC ? "2px solid #fff" : "none",
-              background: isPC ? "#000" : undefined,
+              background: "rgba(0,0,0,0.90)", // 黒・高透明
+              backdropFilter: "blur(8px)",
             }}
           >
-            {/* 動画本体（PC/スマホ両対応） */}
+            {/* 動画本体 */}
             <div
               className="flex justify-center items-center w-full h-full"
               style={{
@@ -128,7 +129,7 @@ export default function WanNyanFeed() {
                   className={`
                     ${isPC
                       ? "w-full h-full rounded-xl border border-white shadow-lg"
-                      : "w-full h-[calc(100vw*1.33)] rounded-xl border border-[#f70031] shadow-md"
+                      : "w-full h-[calc(100vw*1.33)] rounded-xl"
                     }
                     object-contain bg-black
                   `}
@@ -154,7 +155,7 @@ export default function WanNyanFeed() {
                   className={`
                     ${isPC
                       ? "w-full h-full rounded-xl border border-white shadow-lg"
-                      : "w-full h-[calc(100vw*1.33)] rounded-xl border border-[#f70031] shadow-md"
+                      : "w-full h-[calc(100vw*1.33)] rounded-xl"
                     }
                     object-contain bg-black
                   `}

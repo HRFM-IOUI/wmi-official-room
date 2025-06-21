@@ -14,9 +14,9 @@ export default function WanNyanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(true);
+
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  // 動画リスト取得
   useEffect(() => {
     const fetchVideos = async () => {
       const colRef = collection(db, "wannyanVideos");
@@ -26,45 +26,22 @@ export default function WanNyanFeed() {
         id: doc.id,
       }));
       setVideos(items);
+      // console.log("取得動画リスト", items);
     };
     fetchVideos();
   }, []);
 
-  // 再生トリガー: 初回ロード時＋ユーザー操作時
+  // console.log("描画直前: videos", videos);
+
   useEffect(() => {
-    let tried = false;
-    function tryPlayFirstVideo() {
-      const v = videoRefs.current[0];
-      if (v) {
-        v.play().then(() => setPlaying(true)).catch(() => {});
-      }
+    if (videos.length > 0 && videoRefs.current[0]) {
+      setTimeout(() => {
+        videoRefs.current[0]?.play().catch(() => {});
+      }, 0);
+      setPlaying(true);
     }
-    // 初回ロード時は遅延＋try
-    const t = setTimeout(() => {
-      tryPlayFirstVideo();
-      tried = true;
-    }, 250);
-
-    // "once: true" なし。コールバック内でremoveEventListenerすることで一度だけ発火。
-    const userActionPlay = () => {
-      if (!tried) {
-        tryPlayFirstVideo();
-        tried = true;
-      }
-      window.removeEventListener("touchstart", userActionPlay);
-      window.removeEventListener("scroll", userActionPlay);
-    };
-    window.addEventListener("touchstart", userActionPlay);
-    window.addEventListener("scroll", userActionPlay);
-
-    return () => {
-      clearTimeout(t);
-      window.removeEventListener("touchstart", userActionPlay);
-      window.removeEventListener("scroll", userActionPlay);
-    };
   }, [videos]);
 
-  // 再生・一時停止
   const togglePlay = (index: number) => {
     const video = videoRefs.current[index];
     if (!video) return;
@@ -77,7 +54,6 @@ export default function WanNyanFeed() {
     }
   };
 
-  // ミュート切替
   const toggleMute = () => {
     setMuted((m) => !m);
     videoRefs.current.forEach((v) => {
@@ -93,6 +69,10 @@ export default function WanNyanFeed() {
 
   return (
     <section className="lg:hidden h-screen overflow-y-scroll snap-y snap-mandatory bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]">
+      {/* <div style={{color: '#fff', background: '#fff', padding: 4, fontSize: 11}}>
+        <b>動画件数: {videos.length}</b>
+        <pre style={{whiteSpace:'pre-wrap',fontSize:10}}>{JSON.stringify(videos, null, 2)}</pre>
+      </div> */}
       {videos.map((v, index) => {
         const videoSrc = v.type === "firestore"
           ? v.url
@@ -102,8 +82,8 @@ export default function WanNyanFeed() {
           <div
             key={v.id}
             id={v.id}
-            className="snap-start w-full flex flex-col justify-center items-center relative bg-black/90 text-white"
-            style={{ height: "calc(100vh - 48px)", borderRadius: 22, margin: "20px 0" }}
+            className="snap-start w-full flex flex-col justify-center items-center relative bg-black text-white"
+            style={{ height: "calc(100vh - 48px)" }}
           >
             {/* --- 動画本体 --- */}
             <div
@@ -111,6 +91,19 @@ export default function WanNyanFeed() {
               onClick={() => togglePlay(index)}
               style={{ height: "100%" }}
             >
+              {index === 0 && (
+                <button
+                  style={{
+                    position: "absolute", top: 8, left: 8, zIndex: 99, fontSize: 12, padding: 2,
+                    background: "#ff0", color: "#222", border: "1px solid #999", borderRadius: 5
+                  }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    alert("サンプル動画で強制テスト！");
+                    window.open("https://www.w3schools.com/html/mov_bbb.mp4");
+                  }}
+                >[サンプル動画URLを開く]</button>
+              )}
               {v.type === "firestore" ? (
                 <video
                   ref={(el): void => {
@@ -123,10 +116,10 @@ export default function WanNyanFeed() {
                   loop
                   playsInline
                   controls
-                  style={{ height: "100%", background: "#111" }}
                   onError={e => {
                     alert("動画の再生に失敗しました: " + videoSrc);
                   }}
+                  style={{ height: "100%" }}
                 />
               ) : (
                 <iframe

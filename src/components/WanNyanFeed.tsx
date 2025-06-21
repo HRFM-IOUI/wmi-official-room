@@ -8,17 +8,15 @@ type WanNyanVideo = {
   type: "youtube" | "firestore";
   url: string;
   title: string;
-  likes: number;
-  comments: number;
 };
 
 export default function WanNyanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(true);
-
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
+  // 動画リスト取得
   useEffect(() => {
     const fetchVideos = async () => {
       const colRef = collection(db, "wannyanVideos");
@@ -32,16 +30,17 @@ export default function WanNyanFeed() {
     fetchVideos();
   }, []);
 
-  // 描画後に安全に再生
+  // 最初の動画だけは確実に再生（250ms遅延）
   useEffect(() => {
     if (videos.length > 0 && videoRefs.current[0]) {
       setTimeout(() => {
         videoRefs.current[0]?.play().catch(() => {});
-      }, 0);
+      }, 250);
       setPlaying(true);
     }
   }, [videos]);
 
+  // 再生・一時停止
   const togglePlay = (index: number) => {
     const video = videoRefs.current[index];
     if (!video) return;
@@ -54,6 +53,7 @@ export default function WanNyanFeed() {
     }
   };
 
+  // ミュート切替
   const toggleMute = () => {
     setMuted((m) => !m);
     videoRefs.current.forEach((v) => {
@@ -63,7 +63,7 @@ export default function WanNyanFeed() {
 
   if (videos.length === 0) {
     return (
-      <div className="text-center text-gray-600 py-20">動画を読み込み中…</div>
+      <div className="text-center text-gray-600 py-20">Loading…</div>
     );
   }
 
@@ -78,8 +78,8 @@ export default function WanNyanFeed() {
           <div
             key={v.id}
             id={v.id}
-            className="snap-start w-full flex flex-col justify-center items-center relative bg-black text-white"
-            style={{ height: "calc(100vh - 48px)" }} // ← 高さを1.6cm短く
+            className="snap-start w-full flex flex-col justify-center items-center relative bg-black/90 text-white"
+            style={{ height: "calc(100vh - 48px)", borderRadius: 22, margin: "20px 0" }}
           >
             {/* --- 動画本体 --- */}
             <div
@@ -87,19 +87,6 @@ export default function WanNyanFeed() {
               onClick={() => togglePlay(index)}
               style={{ height: "100%" }}
             >
-              {index === 0 && (
-                <button
-                  style={{
-                    position: "absolute", top: 8, left: 8, zIndex: 99, fontSize: 12, padding: 2,
-                    background: "#ff0", color: "#222", border: "1px solid #999", borderRadius: 5
-                  }}
-                  onClick={e => {
-                    e.stopPropagation();
-                    alert("サンプル動画で強制テスト！");
-                    window.open("https://www.w3schools.com/html/mov_bbb.mp4");
-                  }}
-                >[サンプル動画URLを開く]</button>
-              )}
               {v.type === "firestore" ? (
                 <video
                   ref={(el): void => {
@@ -112,10 +99,10 @@ export default function WanNyanFeed() {
                   loop
                   playsInline
                   controls
+                  style={{ height: "100%", background: "#111" }}
                   onError={e => {
                     alert("動画の再生に失敗しました: " + videoSrc);
                   }}
-                  style={{ height: "100%" }}
                 />
               ) : (
                 <iframe

@@ -10,16 +10,7 @@ import Image from "next/image";
 const gridCards = [
   { id: 1, title: "ようこそ/ありがとう", type: "video", src: "/wmifuture01.mp4" },
   { id: 2, title: "Welcome/Thank you", type: "image", src: "/fixstarttiming.mp4" },
-  { id: 3, title: "أهلاً وسهلاً/شكراً", type: "gif", src: "/catui.mp4" },
-  { id: 4, title: "	환영합니다/	감사합니다", type: "image", src: "/demo7.mp4" },
-  { id: 5, title: "Hoş geldiniz/Teşekkür ederim", type: "gif", src: "/demo6.mp4" },
-  { id: 6, title: "	欢迎/	谢谢", type: "gif", src: "/demo5.mp4" },
-  { id: 7, title: "	स्वागत है/धन्यवाद", type: "gif", src: "/20250406_064356837_iOS.png" },
-  { id: 8, title: "	Bienvenido/Gracias", type: "gif", src: "/20250406_064053356_iOS.png" },
-  { id: 9, title: "	Bem-vindo/Obrigado", type: "gif", src: "/20250101_154551003_iOS.jpg" },
-  { id: 10, title: "Selamat datang/Terima kasih", type: "gif", src: "/wmithema.png" },
-  { id: 11, title: "Willkommen/Danke", type: "gif", src: "/WMI-logo.png" },
-  { id: 12, title: "Добро пожаловать/Спасибо", type: "gif", src: "/wmLOGO.png" },
+
 
   // 必要に繰り返し増やせます
 ];

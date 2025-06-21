@@ -69,7 +69,7 @@ export default function WanNyanFeed() {
 
   return (
     <section className="lg:hidden h-screen overflow-y-scroll snap-y snap-mandatory bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]">
-      <div style={{ color: '#c00', background: '#fff', padding: 4, fontSize: 11 }}>
+      <div style={{ color: '#fff', background: '#fff', padding: 4, fontSize: 11 }}>
         <b>動画件数: {videos.length}</b>
       </div>
       {videos.map((v, index) => {

@@ -12,8 +12,8 @@ type WanNyanVideo = {
 
 export default function NyanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
+  const [active, setActive] = useState(0);
   const [muted, setMuted] = useState(true);
-  const [playing, setPlaying] = useState(true);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   // 動画リスト取得
@@ -30,120 +30,105 @@ export default function NyanFeed() {
     fetchVideos();
   }, []);
 
-  // 最初の動画だけは確実に再生
+  // 横スワイプで切り替え
+  const touchX = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(delta) > 60) {
+      if (delta < 0) setActive(a => (a + 1) % videos.length); // 右スワイプ:次へ
+      if (delta > 0) setActive(a => (a - 1 + videos.length) % videos.length); // 左スワイプ:前へ
+    }
+    touchX.current = null;
+  };
+
+  // 前後動画も同時にレンダリング＆即再生
   useEffect(() => {
-    if (videos.length > 0 && videoRefs.current[0]) {
-      setTimeout(() => {
-        videoRefs.current[0]?.play().catch(() => {});
-      }, 0);
-      setPlaying(true);
-    }
-  }, [videos]);
-
-  // 再生・一時停止
-  const togglePlay = (index: number) => {
-    const video = videoRefs.current[index];
-    if (!video) return;
-    if (video.paused) {
-      video.play();
-      setPlaying(true);
-    } else {
-      video.pause();
-      setPlaying(false);
-    }
-  };
-
-  // ミュート切替
-  const toggleMute = () => {
-    setMuted((m) => !m);
-    videoRefs.current.forEach((v) => {
-      if (v) v.muted = !muted;
+    videos.forEach((_, i) => {
+      const v = videoRefs.current[i];
+      if (!v) return;
+      if (i === active) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+        v.muted = muted;
+      } else {
+        v.pause();
+        v.currentTime = 0;
+      }
     });
-  };
+  }, [active, muted, videos.length]);
 
-  if (videos.length === 0) {
-    return (
-      <div className="text-center text-gray-600 py-20">動画を読み込み中…</div>
-    );
+  if (!videos.length) {
+    return <div className="text-center text-gray-600 py-20">動画を読み込み中…</div>;
   }
 
   return (
-    <section
-      className="
-        w-full min-h-screen
-        overflow-x-scroll snap-x snap-mandatory
-        bg-gradient-to-r from-[#1e293b] via-[#0085ff44] to-[#00f7ff44]
-        flex flex-row items-center
-        pb-16 pt-4
-      "
-      style={{
-        scrollSnapType: "x mandatory",
-        overscrollBehaviorX: "contain",
-      }}
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      style={{ overflow: "hidden" }}
     >
-      {videos.map((v, index) => (
-        <div
-          key={v.id}
-          id={v.id}
-          className="
-            snap-start flex flex-col justify-center items-center relative
-            bg-black bg-opacity-70
-            transition-all duration-300
-            w-screen max-w-[90vw] h-[calc(100vh-100px)] mx-3
-            rounded-2xl shadow-2xl border border-gray-200
-          "
-        >
-          {/* 動画外枠 */}
-          <div
-            className="
-              w-full h-full flex items-center justify-center
-              rounded-2xl border-4 border-[#00f7ffbb]
-              shadow-lg
-              relative
-              bg-gradient-to-br from-[#032a49cc] via-[#00eaff66] to-[#023344cc]
-            "
-            style={{
-              margin: "0 auto",
-              background: "linear-gradient(120deg,#009fffcc 0%,#00f7ffbb 100%)",
-              boxShadow: "0 6px 32px #009fff44, 0 1.5px 4px #00f7ff44",
-              minWidth: "82vw",
-              minHeight: "calc(100vw*0.56)",
+      {/* 全動画を重ねて配置、見えるのはactiveと前後だけ */}
+      {videos.map((v, i) => {
+        // 今・前・次だけ重ねてopacity切り替え
+        const show =
+          i === active ||
+          i === (active - 1 + videos.length) % videos.length ||
+          i === (active + 1) % videos.length;
+        return (
+          <video
+            key={v.id}
+            ref={el => {
+              videoRefs.current[i] = el;
             }}
-            onClick={() => togglePlay(index)}
-          >
-            {v.type === "firestore" ? (
-              <video
-                ref={el => { videoRefs.current[index] = el; }}
-                src={v.url}
-                className="w-full h-full object-contain rounded-2xl bg-black"
-                autoPlay
-                muted={muted}
-                loop
-                playsInline
-                controls
-                onError={e => alert("動画の再生に失敗しました")}
-                style={{
-                  background: "#000d",
-                  maxHeight: "60vh",
-                }}
-              />
-            ) : (
-              <iframe
-                src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`}
-                title={v.title}
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                className="w-full h-full object-contain rounded-2xl bg-black"
-                style={{
-                  maxHeight: "60vh",
-                }}
-              />
-            )}
-          </div>
-          {/* タイトル */}
-          <div className="mt-3 text-base font-bold text-white drop-shadow">{v.title}</div>
-        </div>
-      ))}
-    </section>
+            src={v.type === "firestore" ? v.url : undefined}
+            className={`
+              absolute w-full h-full object-cover
+              transition-opacity duration-300
+              ${i === active ? "opacity-100 z-20" : show ? "opacity-0 z-10" : "opacity-0 pointer-events-none z-0"}
+            `}
+            autoPlay={i === active}
+            muted={muted}
+            loop
+            playsInline
+            // controls={false}
+            style={{
+              background: "#000",
+              left: 0,
+              top: 0,
+            }}
+          />
+        );
+      })}
+      {/* オーバーレイUI（タイトル・コントロール） */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 flex flex-col gap-2 bg-gradient-to-t from-black/60 to-transparent z-30 pointer-events-none">
+        <div className="text-lg font-bold text-white drop-shadow">{videos[active].title}</div>
+      </div>
+      <div className="absolute top-4 right-4 flex flex-col gap-4 items-center z-30">
+        <button
+          onClick={() => setMuted((m) => !m)}
+          className="w-9 h-9 rounded-full bg-black/40 flex items-center justify-center pointer-events-auto"
+        >
+          {muted ? (
+            <span className="text-white text-2xl">🔇</span>
+          ) : (
+            <span className="text-white text-2xl">🔊</span>
+          )}
+        </button>
+      </div>
+      {/* スワイプ案内（← →） */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-3xl opacity-40 select-none pointer-events-none z-30">
+        {videos.length > 1 && (
+          <>
+            <span className="mr-6">←</span>
+            <span className="ml-6">→</span>
+          </>
+        )}
+      </div>
+    </div>
   );
 }

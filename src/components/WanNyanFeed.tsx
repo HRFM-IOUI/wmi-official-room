@@ -15,6 +15,17 @@ export default function WanNyanFeed() {
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(true);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [isPC, setIsPC] = useState(false);
+
+  // PC/スマホ判定
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPC(window.innerWidth >= 1024);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // 動画リスト取得
   useEffect(() => {
@@ -73,7 +84,7 @@ export default function WanNyanFeed() {
         w-full min-h-screen
         overflow-y-scroll
         snap-y snap-mandatory
-        bg-gradient-to-b from-[#222] via-[#333] to-[#111]
+        bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]
         flex flex-col items-center
         pb-16 pt-4
       `}
@@ -82,96 +93,91 @@ export default function WanNyanFeed() {
         overscrollBehaviorY: "contain",
       }}
     >
-      {videos.map((v, index) => {
-        const isPC =
-          typeof window !== "undefined" && window.innerWidth >= 1024;
-        return (
+      {videos.map((v, index) => (
+        <div
+          key={v.id}
+          id={v.id}
+          className={`
+            snap-start flex flex-col justify-center items-center relative
+            transition-all duration-300
+            ${isPC
+              ? "w-[560px] h-[80vh] my-16 rounded-2xl shadow-2xl border border-gray-200"
+              : "w-full h-screen"}
+          `}
+          style={{
+            margin: isPC ? "48px auto" : "40px 0",
+            borderRadius: isPC ? 24 : 0,
+            boxShadow: isPC
+              ? "0 8px 32px rgba(0,0,0,0.13), 0 1.5px 4px rgba(25,35,73,0.09)"
+              : undefined,
+            border: isPC ? "2px solid #fff" : undefined,
+            background: isPC
+              // WMIカラーグラデ＋黒半透明
+              ? "linear-gradient(135deg,rgba(25,35,73,0.96) 0%,rgba(247,0,49,0.92) 68%,rgba(255,215,0,0.18) 100%)"
+              : "rgba(0,0,0,0.88)",
+            overflow: "hidden",
+          }}
+        >
+          {/* 動画本体 */}
           <div
-            key={v.id}
-            id={v.id}
-            className={`
-              snap-start flex flex-col justify-center items-center relative
-              transition-all duration-300
-              ${isPC
-                ? "w-[560px] h-[80vh] my-16 rounded-2xl shadow-2xl border border-gray-200"
-                : "w-full h-screen"
-              }
-              bg-black/90 backdrop-blur-md
-            `}
+            className="flex justify-center items-center w-full h-full"
             style={{
-              margin: isPC ? "48px auto" : "40px 0",
-              boxShadow: isPC
-                ? "0 8px 32px rgba(0,0,0,0.13), 0 1.5px 4px rgba(25,35,73,0.09)"
-                : "0 8px 24px #1119, 0 -8px 24px #1119",
-              borderRadius: isPC ? 24 : 24,
-              border: isPC ? "2px solid #fff" : "none",
-              background: "rgba(0,0,0,0.90)", // 黒・高透明
-              backdropFilter: "blur(8px)",
+              minHeight: isPC ? "70vh" : "75vh",
+              maxHeight: isPC ? "75vh" : undefined,
+              paddingTop: isPC ? 0 : "6vw",
+              paddingBottom: isPC ? 0 : "6vw",
             }}
+            onClick={() => togglePlay(index)}
           >
-            {/* 動画本体 */}
-            <div
-              className="flex justify-center items-center w-full h-full"
-              style={{
-                minHeight: isPC ? "70vh" : "75vh",
-                maxHeight: isPC ? "75vh" : undefined,
-                paddingTop: isPC ? 0 : "6vw",
-                paddingBottom: isPC ? 0 : "6vw",
-              }}
-              onClick={() => togglePlay(index)}
-            >
-              {v.type === "firestore" ? (
-                <video
-                  ref={(el): void => {
-                    videoRefs.current[index] = el;
-                  }}
-                  src={v.url}
-                  className={`
-                    ${isPC
-                      ? "w-full h-full rounded-xl border border-white shadow-lg"
-                      : "w-full h-[calc(100vw*1.33)] rounded-xl"
-                    }
-                    object-contain bg-black
-                  `}
-                  autoPlay
-                  muted={muted}
-                  loop
-                  playsInline
-                  controls
-                  style={{
-                    maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
-                    background: "#111",
-                  }}
-                  onError={e => {
-                    alert("動画の再生に失敗しました。");
-                  }}
-                />
-              ) : (
-                <iframe
-                  src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`}
-                  title={v.title}
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                  className={`
-                    ${isPC
-                      ? "w-full h-full rounded-xl border border-white shadow-lg"
-                      : "w-full h-[calc(100vw*1.33)] rounded-xl"
-                    }
-                    object-contain bg-black
-                  `}
-                  style={{
-                    maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
-                  }}
-                />
-              )}
-            </div>
-            {/* タイトル表示 */}
-            <div className="w-full text-center mt-4 mb-4">
-              <div className="text-lg font-extrabold drop-shadow-md">{v.title}</div>
-            </div>
+            {v.type === "firestore" ? (
+              <video
+                ref={(el): void => {
+                  videoRefs.current[index] = el;
+                }}
+                src={v.url}
+                className={`
+                  ${isPC
+                    ? "w-full h-full rounded-xl border border-white shadow-lg"
+                    : "w-full h-[calc(100vw*1.33)] rounded-none"}
+                  object-contain bg-black
+                `}
+                autoPlay
+                muted={muted}
+                loop
+                playsInline
+                controls
+                style={{
+                  maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
+                  background: "#111",
+                }}
+                onError={e => {
+                  alert("動画の再生に失敗しました。");
+                }}
+              />
+            ) : (
+              <iframe
+                src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`}
+                title={v.title}
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                className={`
+                  ${isPC
+                    ? "w-full h-full rounded-xl border border-white shadow-lg"
+                    : "w-full h-[calc(100vw*1.33)] rounded-none"}
+                  object-contain bg-black
+                `}
+                style={{
+                  maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
+                }}
+              />
+            )}
           </div>
-        );
-      })}
+          {/* タイトル */}
+          <div className="w-full text-center mt-4 mb-4">
+            <div className="text-lg font-extrabold drop-shadow-md text-white">{v.title}</div>
+          </div>
+        </div>
+      ))}
     </section>
   );
 }

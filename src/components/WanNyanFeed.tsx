@@ -30,14 +30,38 @@ export default function WanNyanFeed() {
     fetchVideos();
   }, []);
 
-  // 最初の動画だけは確実に再生（250ms遅延）
+  // 再生トリガー: 初回ロード時＋ユーザー操作時
   useEffect(() => {
-    if (videos.length > 0 && videoRefs.current[0]) {
-      setTimeout(() => {
-        videoRefs.current[0]?.play().catch(() => {});
-      }, 250);
-      setPlaying(true);
+    let tried = false;
+    function tryPlayFirstVideo() {
+      const v = videoRefs.current[0];
+      if (v) {
+        v.play().then(() => setPlaying(true)).catch(() => {});
+      }
     }
+    // 初回ロード時は遅延＋try
+    const t = setTimeout(() => {
+      tryPlayFirstVideo();
+      tried = true;
+    }, 250);
+
+    // "once: true" なし。コールバック内でremoveEventListenerすることで一度だけ発火。
+    const userActionPlay = () => {
+      if (!tried) {
+        tryPlayFirstVideo();
+        tried = true;
+      }
+      window.removeEventListener("touchstart", userActionPlay);
+      window.removeEventListener("scroll", userActionPlay);
+    };
+    window.addEventListener("touchstart", userActionPlay);
+    window.addEventListener("scroll", userActionPlay);
+
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("touchstart", userActionPlay);
+      window.removeEventListener("scroll", userActionPlay);
+    };
   }, [videos]);
 
   // 再生・一時停止
@@ -63,7 +87,7 @@ export default function WanNyanFeed() {
 
   if (videos.length === 0) {
     return (
-      <div className="text-center text-gray-600 py-20">Loading…</div>
+      <div className="text-center text-gray-600 py-20">動画を読み込み中…</div>
     );
   }
 
@@ -115,7 +139,6 @@ export default function WanNyanFeed() {
                 />
               )}
             </div>
-
             {/* --- タイトル --- */}
             <div className="absolute bottom-20 left-4 z-10 text-white space-y-2">
               <div className="text-lg font-bold">{v.title}</div>

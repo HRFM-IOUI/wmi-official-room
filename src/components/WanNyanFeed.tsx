@@ -8,16 +8,15 @@ type WanNyanVideo = {
   type: "youtube" | "firestore";
   url: string;
   title: string;
-  likes: number;
-  comments: number;
 };
 
 export default function WanNyanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(true);
-
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -32,33 +31,64 @@ export default function WanNyanFeed() {
     fetchVideos();
   }, []);
 
-  // 描画後に最初の動画を安全に再生
+  // 最初の動画自動再生
   useEffect(() => {
-    if (videos.length > 0 && videoRefs.current[0]) {
+    if (videos.length > 0 && containerRef.current) {
       setTimeout(() => {
-        videoRefs.current[0]?.play().catch(() => {});
+        setCurrentIndex(0);
+        containerRef.current?.scrollTo({ top: 0, behavior: "auto" });
       }, 0);
       setPlaying(true);
     }
   }, [videos]);
 
+  // スクロール位置でcurrentIndex自動更新
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+    const snapEls = videoRefs.current;
+    const scrollTop = containerRef.current.scrollTop;
+    let bestIdx = 0;
+    let minDiff = Infinity;
+    snapEls.forEach((el, idx) => {
+      if (!el) return;
+      const diff = Math.abs(el.offsetTop - scrollTop);
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestIdx = idx;
+      }
+    });
+    setCurrentIndex(bestIdx);
+  };
+
+  // 動画枠をタップして再生/一時停止
   const togglePlay = (index: number) => {
-    const video = videoRefs.current[index];
-    if (!video) return;
-    if (video.paused) {
-      video.play();
+    const el = videoRefs.current[index]?.querySelector("video") as HTMLVideoElement;
+    if (!el) return;
+    if (el.paused) {
+      el.play();
       setPlaying(true);
     } else {
-      video.pause();
+      el.pause();
       setPlaying(false);
     }
   };
 
+  // ミュート切替
   const toggleMute = () => {
     setMuted((m) => !m);
-    videoRefs.current.forEach((v) => {
+    videoRefs.current.forEach((wrap) => {
+      const v = wrap?.querySelector("video") as HTMLVideoElement;
       if (v) v.muted = !muted;
     });
+  };
+
+  // インジケーターで上下にスクロール
+  const goTo = (idx: number) => {
+    const el = videoRefs.current[idx];
+    if (el && containerRef.current) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setCurrentIndex(idx);
+    }
   };
 
   if (videos.length === 0) {
@@ -68,61 +98,130 @@ export default function WanNyanFeed() {
   }
 
   return (
-    <section className="lg:hidden h-screen overflow-y-scroll snap-y snap-mandatory bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]">
-      <div style={{ color: '#c00', background: '#fff', padding: 4, fontSize: 11 }}>
-        <b>動画件数: {videos.length}</b>
-      </div>
+    <div
+      ref={containerRef}
+      className={`
+        w-full min-h-screen
+        overflow-y-scroll
+        snap-y snap-mandatory
+        bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]
+        flex flex-col items-center
+        pb-16 pt-4
+        relative
+      `}
+      style={{
+        scrollSnapType: "y mandatory",
+        overscrollBehaviorY: "contain",
+      }}
+      onScroll={handleScroll}
+    >
       {videos.map((v, index) => {
-        const videoSrc = v.type === "firestore"
-          ? v.url
-          : `https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`;
-
+        const isPC = typeof window !== "undefined" && window.innerWidth >= 1024;
         return (
           <div
             key={v.id}
-            id={v.id}
-            className="snap-start w-full flex flex-col justify-center items-center relative bg-black bg-opacity-80"
+            ref={el => { videoRefs.current[index] = el; }}
+            className={`
+              snap-start
+              flex flex-col justify-center items-center relative
+              bg-black text-white
+              transition-all duration-300
+              ${isPC ? "w-[560px] h-[80vh] my-16 rounded-2xl shadow-2xl border border-gray-200" : "w-full h-screen"}
+            `}
             style={{
-              height: "calc(100vh - 100px)",
-              padding: "36px 0", // 上下余白
+              margin: isPC ? "48px auto" : "40px 0",
+              boxShadow: isPC
+                ? "0 8px 32px rgba(0,0,0,0.13), 0 1.5px 4px rgba(25,35,73,0.09)"
+                : undefined,
+              borderRadius: isPC ? 24 : undefined,
+              border: isPC ? "2px solid #fff" : undefined,
+              background: "#000",
             }}
           >
-            {/* --- 動画外枠 --- */}
+            {/* 動画本体 */}
             <div
-              className="
-                w-[94vw] max-w-lg aspect-video rounded-2xl shadow-xl bg-black border-4 border-[#fff3] flex items-center justify-center
-                relative
-              "
-              style={{ margin: "0 auto" }}
+              className="flex justify-center items-center w-full h-full"
+              style={{
+                minHeight: isPC ? "70vh" : "75vh",
+                maxHeight: isPC ? "75vh" : undefined,
+                paddingTop: isPC ? 0 : "6vw",
+                paddingBottom: isPC ? 0 : "6vw",
+              }}
               onClick={() => togglePlay(index)}
             >
               {v.type === "firestore" ? (
                 <video
-                  ref={el => { videoRefs.current[index] = el; }}
-                  src={videoSrc}
-                  className="w-full h-full object-cover rounded-2xl"
+                  src={v.url}
+                  className={`
+                    ${isPC ? "w-full h-full rounded-xl border border-white shadow-lg" : "w-full h-[calc(100vw*1.33)] rounded-none"}
+                    object-contain bg-black
+                  `}
                   autoPlay
                   muted={muted}
                   loop
                   playsInline
                   controls
-                  onError={e => alert("動画の再生に失敗しました: " + videoSrc)}
+                  style={{
+                    maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
+                    background: "#111",
+                  }}
+                  onError={() => {
+                    alert("動画の再生に失敗しました。");
+                  }}
                 />
               ) : (
                 <iframe
-                  src={videoSrc}
+                  src={`https://www.youtube.com/embed/${v.url}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${v.url}`}
                   title={v.title}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
-                  className="w-full h-full object-cover rounded-2xl"
+                  className={`
+                    ${isPC ? "w-full h-full rounded-xl border border-white shadow-lg" : "w-full h-[calc(100vw*1.33)] rounded-none"}
+                    object-contain bg-black
+                  `}
+                  style={{
+                    maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
+                  }}
                 />
               )}
             </div>
-            {/* --- タイトル --- */}
-            <div className="mt-4 text-lg font-bold text-white drop-shadow">{v.title}</div>
+            {/* タイトル */}
+            <div className="w-full text-center mt-4 mb-4">
+              <div className="text-lg font-extrabold drop-shadow-md">{v.title}</div>
+            </div>
+            {/* インジケーター：下（次へ） */}
+            {videos.length > 1 && index < videos.length - 1 && (
+              <button
+                className={`
+                  absolute bottom-4 left-1/2 -translate-x-1/2 z-20
+                  bg-gradient-to-r from-[#ffd700] to-[#f70031]
+                  text-white font-bold rounded-full px-6 py-2 shadow-lg
+                  animate-bounce
+                  hover:scale-105 transition-all
+                `}
+                onClick={() => goTo(index + 1)}
+              >
+                ↓ 次の動画
+              </button>
+            )}
+            {/* インジケーター：上（前へ） */}
+            {videos.length > 1 && index > 0 && (
+              <button
+                className={`
+                  absolute top-4 left-1/2 -translate-x-1/2 z-20
+                  bg-gradient-to-r from-[#ffd700] to-[#f70031]
+                  text-white font-bold rounded-full px-6 py-2 shadow-lg
+                  animate-bounce
+                  hover:scale-105 transition-all
+                `}
+                onClick={() => goTo(index - 1)}
+              >
+                ↑ 前の動画
+              </button>
+            )}
           </div>
         );
       })}
-    </section>
+    </div>
   );
 }

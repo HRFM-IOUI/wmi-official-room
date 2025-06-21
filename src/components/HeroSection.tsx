@@ -148,7 +148,7 @@ export default function HeroSection({
                   top: imgTop,
                   pointerEvents: "none",
                   userSelect: "none",
-                  background: "#fff",
+                  background: "#ffffff",
                 }}
                 draggable={false}
                 priority

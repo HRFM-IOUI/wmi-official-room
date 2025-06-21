@@ -58,7 +58,7 @@ export default function SocialNewsTabs() {
                   </span>
                 </span>
                 <a
-                  href="https://twitter.com/wondermetanism" // ←ご自身のXアカウントURLに変更！
+                  href="https://x.com/wondermetanism?s=21" // ←ご自身のXアカウントURLに変更！
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block mt-2 px-6 py-2 rounded-full font-bold text-white bg-gradient-to-r from-[#1cb5e0] to-[#000851] shadow hover:scale-105 transition"

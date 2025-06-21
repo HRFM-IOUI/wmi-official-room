@@ -13,19 +13,7 @@ type WanNyanVideo = {
 export default function WanNyanFeed() {
   const [videos, setVideos] = useState<WanNyanVideo[]>([]);
   const [muted, setMuted] = useState(true);
-  const [playing, setPlaying] = useState(true);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const [isPC, setIsPC] = useState(false);
-
-  // PC/スマホ判定
-  useEffect(() => {
-    const handleResize = () => {
-      setIsPC(window.innerWidth >= 1024);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // 動画リスト取得
   useEffect(() => {
@@ -41,35 +29,24 @@ export default function WanNyanFeed() {
     fetchVideos();
   }, []);
 
-  // 最初の動画だけは確実に再生
+  // 最初の動画だけは確実に再生（再生成功保証パターン！）
   useEffect(() => {
     if (videos.length > 0 && videoRefs.current[0]) {
       setTimeout(() => {
         videoRefs.current[0]?.play().catch(() => {});
       }, 0);
-      setPlaying(true);
     }
   }, [videos]);
 
-  // 再生・一時停止
+  // タップで再生/一時停止
   const togglePlay = (index: number) => {
     const video = videoRefs.current[index];
     if (!video) return;
     if (video.paused) {
       video.play();
-      setPlaying(true);
     } else {
       video.pause();
-      setPlaying(false);
     }
-  };
-
-  // ミュート切替
-  const toggleMute = () => {
-    setMuted((m) => !m);
-    videoRefs.current.forEach((v) => {
-      if (v) v.muted = !muted;
-    });
   };
 
   if (videos.length === 0) {
@@ -80,53 +57,42 @@ export default function WanNyanFeed() {
 
   return (
     <section
-      className={`
+      className="
         w-full min-h-screen
         overflow-y-scroll
         snap-y snap-mandatory
-        bg-gradient-to-b from-[#f8f9fa] via-[#eaecef] to-[#f2f4f7]
         flex flex-col items-center
-        pb-16 pt-4
-      `}
+        bg-gradient-to-b from-[#181818e6] via-[#f70031bb] to-[#ffd70033]
+        pb-10 pt-6
+      "
       style={{
         scrollSnapType: "y mandatory",
         overscrollBehaviorY: "contain",
+        // さらに黒の透明感を強調
+        background:
+          "linear-gradient(135deg,rgba(16,16,16,0.94) 0%,rgba(247,0,49,0.87) 80%,rgba(255,215,0,0.18) 100%)"
       }}
     >
       {videos.map((v, index) => (
         <div
           key={v.id}
-          id={v.id}
-          className={`
-            snap-start flex flex-col justify-center items-center relative
+          className="
+            snap-start
+            flex flex-col justify-center items-center
+            relative w-full h-screen
             transition-all duration-300
-            ${isPC
-              ? "w-[560px] h-[80vh] my-16 rounded-2xl shadow-2xl border border-gray-200"
-              : "w-full h-screen"}
-          `}
+          "
           style={{
-            margin: isPC ? "48px auto" : "40px 0",
-            borderRadius: isPC ? 24 : 0,
-            boxShadow: isPC
-              ? "0 8px 32px rgba(0,0,0,0.13), 0 1.5px 4px rgba(25,35,73,0.09)"
-              : undefined,
-            border: isPC ? "2px solid #fff" : undefined,
-            background: isPC
-              // WMIカラーグラデ＋黒半透明
-              ? "linear-gradient(135deg,rgba(25,35,73,0.96) 0%,rgba(247,0,49,0.92) 68%,rgba(255,215,0,0.18) 100%)"
-              : "rgba(0,0,0,0.88)",
-            overflow: "hidden",
+            minHeight: "100vh",
+            height: "100vh",
+            background: "rgba(0,0,0,0.68)",
+            borderRadius: "0px",
+            boxShadow: "0 2px 24px 0 rgba(0,0,0,0.14)"
           }}
         >
           {/* 動画本体 */}
           <div
             className="flex justify-center items-center w-full h-full"
-            style={{
-              minHeight: isPC ? "70vh" : "75vh",
-              maxHeight: isPC ? "75vh" : undefined,
-              paddingTop: isPC ? 0 : "6vw",
-              paddingBottom: isPC ? 0 : "6vw",
-            }}
             onClick={() => togglePlay(index)}
           >
             {v.type === "firestore" ? (
@@ -135,22 +101,17 @@ export default function WanNyanFeed() {
                   videoRefs.current[index] = el;
                 }}
                 src={v.url}
-                className={`
-                  ${isPC
-                    ? "w-full h-full rounded-xl border border-white shadow-lg"
-                    : "w-full h-[calc(100vw*1.33)] rounded-none"}
-                  object-contain bg-black
-                `}
+                className="w-full h-full object-contain bg-black"
                 autoPlay
                 muted={muted}
                 loop
                 playsInline
                 controls
                 style={{
-                  maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
+                  maxHeight: "100vh",
                   background: "#111",
                 }}
-                onError={e => {
+                onError={() => {
                   alert("動画の再生に失敗しました。");
                 }}
               />
@@ -160,21 +121,18 @@ export default function WanNyanFeed() {
                 title={v.title}
                 allow="autoplay; encrypted-media"
                 allowFullScreen
-                className={`
-                  ${isPC
-                    ? "w-full h-full rounded-xl border border-white shadow-lg"
-                    : "w-full h-[calc(100vw*1.33)] rounded-none"}
-                  object-contain bg-black
-                `}
+                className="w-full h-full object-contain bg-black"
                 style={{
-                  maxHeight: isPC ? "70vh" : "calc(100vh - 100px)",
+                  maxHeight: "100vh",
                 }}
               />
             )}
           </div>
           {/* タイトル */}
-          <div className="w-full text-center mt-4 mb-4">
-            <div className="text-lg font-extrabold drop-shadow-md text-white">{v.title}</div>
+          <div className="absolute bottom-8 w-full text-center">
+            <div className="text-lg font-extrabold drop-shadow-md text-white">
+              {v.title}
+            </div>
           </div>
         </div>
       ))}

@@ -8,15 +8,13 @@ import Image from "next/image";
 
 // カードデータ例
 const gridCards = [
-  { id: 1, title: "", type: "video", src: "/wmifuture01.mp4" },
-  { id: 2, title: "", type: "video", src: "/fixstarttiming.mp4" },
-  { id: 3, title: "", type: "video", src: "/catui.mp4" },
-  { id: 4, title: "", type: "video", src: "/demo5.mp4" },
-  { id: 5, title: "", type: "video", src: "/communityroom.mp4" },
+  { id: 1, title: "This", type: "video", src: "/wmifuture01.mp4" },
+  { id: 2, title: "video", type: "video", src: "/genkou.mp4" },
+  { id: 3, title: "shows", type: "video", src: "/catui.mp4" },
+  { id: 4, title: "devlopment", type: "video", src: "/demo5.mp4" },
+  { id: 5, title: "version", type: "video", src: "/communityroom.mp4" },
   // 必要に繰り返し増やせます
 ];
-
-const VIDEO_CAPTION = "This video shows a development version of R∞M.";
 
 export default function GridCarousel() {
   return (
@@ -100,7 +98,7 @@ export default function GridCarousel() {
               />
             )}
             <span className="block text-xs text-slate-500 text-center mt-0.5 px-1 italic leading-tight">
-              {card.type === "video" && VIDEO_CAPTION}
+              {card.type === "video" }
             </span>
             {card.title && (
               <span className="text-sm font-semibold text-slate-800 text-center mt-1">{card.title}</span>

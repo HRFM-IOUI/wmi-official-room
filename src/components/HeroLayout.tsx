@@ -125,8 +125,8 @@ function VideoExperienceSection() {
         /* 立体＆閃光エフェクト */
         .drop-shadow-lg {
           text-shadow:
-            0 2px 8px rgba(0,0,0,0.14),
-            0 6px 24px rgba(0,0,0,0.13);
+            0 2px 8px rgba(241, 228, 47, 0.14),
+            0 6px 24px rgba(235, 188, 228, 0.86);
         }
         .shine-effect {
           position: relative;

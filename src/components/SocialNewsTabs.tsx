@@ -71,28 +71,34 @@ export default function SocialNewsTabs() {
           )}
 
           {active === 1 && (
-            <div className="space-y-5">
-              {/* Announcement Card */}
-              <div className="bg-gradient-to-r from-[#fff7f7] via-white to-[#f7f9ff] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
-                <div className="font-bold text-[#f70031] mb-1">Important Notice</div>
-                <div>
-                  Stay up to date with our latest updates, platform news, and development insights.
-                </div>
-              </div>
-            </div>
-          )}
+  <div className="space-y-5">
+    {/* Announcement Card */}
+    <div className="bg-gradient-to-r from-[#fff7f7] via-white to-[#f7f9ff] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
+      <div className="font-bold text-[#f70031] mb-1">Important Notice</div>
+      <div className="text-slate-800">
+        {/* ここに内容 */}
+        Welcome to the official news hub for R∞M. Here you’ll find updates on upcoming releases, technical improvements, and insights from the development team.
+      </div>
+    </div>
+  </div>
+)}
+
 
           {active === 2 && (
-            <div className="space-y-5">
-              {/* Event Card */}
-              <div className="bg-gradient-to-r from-[#edeffc] via-white to-[#fff7f7] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
-                <div className="font-bold text-[#f70031] mb-1">Upcoming Events</div>
-                <div>
-                  Find detailed information about upcoming sessions, workshops, and community activities.
-                </div>
-              </div>
-            </div>
-          )}
+  <div className="space-y-5">
+    {/* Event Card */}
+    <div className="bg-gradient-to-r from-[#edeffc] via-white to-[#fff7f7] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
+      <div className="font-bold text-[#f70031] mb-1">Upcoming Events</div>
+      きっと役に立てると思います。
+誰かの役に立てる、そんなイベント・発表をお楽しみに！！
+<br />
+<span className="text-xs text-gray-500">
+  We hope our events and updates will help someone, somewhere in the world. Stay tuned!
+</span>
+    </div>
+  </div>
+)}
+
         </div>
       </div>
     </section>

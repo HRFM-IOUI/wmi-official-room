@@ -74,12 +74,6 @@ export default function LoginPage() {
             Sign In
           </button>
         </form>
-
-        <div className="text-center text-sm text-gray-500 pt-2">
-          <Link href="/signup" className="text-[#5b8dee] hover:underline font-medium">
-            Create new account
-          </Link>
-        </div>
       </div>
     </div>
   );

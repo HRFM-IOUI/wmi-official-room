@@ -48,7 +48,7 @@ export default function HeroSection({ size = 320 }: { size?: number }) {
   }, []);
 
   // ロゴのパララックス効果
-  const logoParallax = moveUp ? Math.min(scrollY * 0.25, 32) : 0;
+  const logoParallax = moveUp ? Math.min(scrollY * 0.25, 35) : 0;
   const logoStyle = {
     transform: `translateY(${logoParallax}px)`,
     transition: "transform 0.13s cubic-bezier(0.22,1,0.36,1)",

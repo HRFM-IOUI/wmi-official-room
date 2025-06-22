@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function FooterSection() {
   const [year, setYear] = useState<number | null>(null);
@@ -43,6 +44,14 @@ export default function FooterSection() {
             >
               @wondermetanism
             </a>
+          </div>
+          <div className="mt-3">
+            <Link
+              href="/privacy"
+              className="underline text-[#f70031] font-semibold text-xs hover:text-[#b90027] transition"
+            >
+              Privacy Policy
+            </Link>
           </div>
           <div className="text-[10px] text-gray-400 mt-1">
             *Serious/official inquiries only. No spam or solicitation, please.

@@ -24,7 +24,7 @@ export default function AccessibilityModal({
                 document.body.classList.remove("font-medium", "font-large");
                 document.body.classList.add("font-small");
               }}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all"
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all text-[#192349] font-bold"
             >
               S
             </button>
@@ -33,7 +33,7 @@ export default function AccessibilityModal({
                 document.body.classList.remove("font-small", "font-large");
                 document.body.classList.add("font-medium");
               }}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all"
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all text-[#192349] font-bold"
             >
               M
             </button>
@@ -42,7 +42,7 @@ export default function AccessibilityModal({
                 document.body.classList.remove("font-small", "font-medium");
                 document.body.classList.add("font-large");
               }}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all"
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all text-[#192349] font-bold"
             >
               L
             </button>
@@ -57,7 +57,7 @@ export default function AccessibilityModal({
               onClick={() => {
                 document.body.classList.remove("theme-light", "theme-dark");
               }}
-              className="px-4 py-2 bg-white border rounded hover:bg-[#f8f9fa] transition-all"
+              className="px-4 py-2 bg-white border rounded hover:bg-[#f8f9fa] transition-all text-[#192349] font-semibold"
             >
               Normal
             </button>
@@ -66,7 +66,7 @@ export default function AccessibilityModal({
                 document.body.classList.remove("theme-dark");
                 document.body.classList.add("theme-light");
               }}
-              className="px-4 py-2 bg-gray-100 border rounded hover:bg-[#f8f9fa] transition-all"
+              className="px-4 py-2 bg-gray-100 border rounded hover:bg-[#f8f9fa] transition-all text-[#192349] font-semibold"
             >
               Light
             </button>
@@ -75,7 +75,7 @@ export default function AccessibilityModal({
                 document.body.classList.remove("theme-light");
                 document.body.classList.add("theme-dark");
               }}
-              className="px-4 py-2 bg-black text-white border rounded hover:bg-[#444444] transition-all"
+              className="px-4 py-2 bg-black text-white border rounded hover:bg-[#444444] transition-all font-semibold"
             >
               Dark
             </button>
@@ -84,7 +84,7 @@ export default function AccessibilityModal({
 
         <button
           onClick={onClose}
-          className="w-full mt-4 bg-[#f70031] text-white py-2 rounded hover:bg-[#ffd700] transition-all"
+          className="w-full mt-4 bg-[#f70031] text-white py-2 rounded hover:bg-[#ffd700] transition-all font-semibold"
         >
           Close
         </button>

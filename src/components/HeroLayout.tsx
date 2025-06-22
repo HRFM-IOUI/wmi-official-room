@@ -12,7 +12,8 @@ import { BsArrowDownUp, BsArrowLeftRight } from "react-icons/bs";
 function VideoExperienceSection() {
   return (
     <section
-      id="experience" // ここが追加ポイント！
+      id="experience"
+      aria-labelledby="experience-heading"
       className="
         relative mx-auto my-12 w-full max-w-xl rounded-2xl shadow-2xl
         bg-white/40 backdrop-blur-md border-2 border-gray-200/60
@@ -24,13 +25,16 @@ function VideoExperienceSection() {
       }}
     >
       {/* 上メッセージ（右→左閃光、グラデ） */}
-      <p className="relative pt-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-slate-800 via-black to-white bg-clip-text shine-effect shine-reverse">
+      <p
+        id="experience-heading"
+        className="relative pt-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-slate-800 via-black to-white bg-clip-text shine-effect shine-reverse"
+      >
         Vertical &amp; horizontal swipe demo
-        <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow-reverse"></span>
+        <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow-reverse" aria-hidden="true"></span>
       </p>
 
       {/* ROOMボタン */}
-      <div className="flex items-center justify-center gap-8 py-10 select-none">
+      <div className="flex items-center justify-center gap-8 py-10 select-none" aria-label="R∞M Demo Buttons">
         {/* R */}
         <span
           className="text-3xl font-extrabold tracking-widest px-4 py-2 rounded-xl shadow-lg"
@@ -42,6 +46,7 @@ function VideoExperienceSection() {
             boxShadow: "0 6px 32px #1cb5e055, 0 1.5px 4px #00085144",
             letterSpacing: "0.1em",
           }}
+          aria-hidden="true"
         >
           R
         </span>
@@ -49,23 +54,25 @@ function VideoExperienceSection() {
         <a
           href="/wan"
           className="w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-[#f70031] to-[#ffd700] shadow-2xl hover:scale-110 transition border-4 border-white/70"
-          title="縦スワイプ動画体験"
+          title="Try vertical swipe video demo"
+          aria-label="Try vertical swipe video demo"
           style={{
             boxShadow: "0 6px 32px #f7003166, 0 1.5px 4px #ffd70066",
           }}
         >
-          <BsArrowDownUp className="text-white text-3xl drop-shadow-lg" />
+          <BsArrowDownUp className="text-white text-3xl drop-shadow-lg" aria-hidden="true" />
         </a>
         {/* 横スワイプ */}
         <a
           href="/nyan"
           className="w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-[#1cb5e0] to-[#000851] shadow-2xl hover:scale-110 transition border-4 border-white/70"
-          title="横スワイプ動画体験"
+          title="Try horizontal swipe video demo"
+          aria-label="Try horizontal swipe video demo"
           style={{
             boxShadow: "0 6px 32px #1cb5e066, 0 1.5px 4px #00085166",
           }}
         >
-          <BsArrowLeftRight className="text-white text-3xl drop-shadow-lg" />
+          <BsArrowLeftRight className="text-white text-3xl drop-shadow-lg" aria-hidden="true" />
         </a>
         {/* M */}
         <span
@@ -78,6 +85,7 @@ function VideoExperienceSection() {
             boxShadow: "0 6px 32px #f7003155, 0 1.5px 4px #ffd70044",
             letterSpacing: "0.1em",
           }}
+          aria-hidden="true"
         >
           M
         </span>
@@ -85,12 +93,11 @@ function VideoExperienceSection() {
       {/* 下メッセージ（左→右閃光、グラデ） */}
       <p className="relative pb-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-slate-800 via-black to-white bg-clip-text shine-effect">
         Let&#39;s try R∞M video UI!
-        <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow"></span>
+        <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow" aria-hidden="true"></span>
       </p>
 
       {/* 光沢アニメーション用スタイル＋shineエフェクト */}
       <style>{`
-        /* 上部閃光：右→左 */
         .shine-glow-reverse {
           background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.7) 50%, transparent 80%);
           position: absolute;
@@ -105,8 +112,6 @@ function VideoExperienceSection() {
           60%  { left: -75%; }
           100% { left: -75%; }
         }
-
-        /* 下部閃光：左→右（元のshine-glow） */
         .shine-glow {
           background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.7) 50%, transparent 80%);
           position: absolute;
@@ -121,8 +126,6 @@ function VideoExperienceSection() {
           60%  { left: 120%; }
           100% { left: 120%; }
         }
-
-        /* 立体＆閃光エフェクト */
         .drop-shadow-lg {
           text-shadow:
             0 2px 8px rgba(241, 228, 47, 0.14),
@@ -179,6 +182,7 @@ export default function HeroLayout() {
             <button
               onClick={() => setAccessibilityOpen(false)}
               className="absolute top-4 right-4 text-2xl text-white hover:text-gray-300"
+              aria-label="Close accessibility settings"
             >
               ×
             </button>
@@ -196,6 +200,7 @@ export default function HeroLayout() {
             <button
               onClick={() => setNavigationOpen(false)}
               className="absolute top-4 right-4 text-2xl text-white hover:text-gray-300"
+              aria-label="Close navigation menu"
             >
               ×
             </button>

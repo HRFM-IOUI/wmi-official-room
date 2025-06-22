@@ -83,6 +83,7 @@ export default function HeroSection({
 
   return (
     <section
+      aria-labelledby="hero-heading"
       style={{
         width: "100%",
         minHeight: "60vh",
@@ -110,6 +111,7 @@ export default function HeroSection({
           top: 50,
           zIndex: 20,
         }}
+        aria-hidden="true"
       >
         {PIECES.map((piece) => {
           const { objectPosition, imgTop } = getPieceProps(piece.key);
@@ -134,7 +136,7 @@ export default function HeroSection({
             >
               <Image
                 src="/wmLOGO.png"
-                alt={`WM Logo ${piece.key}`}
+                alt="WonderMetanism Official Logo Animation"
                 width={size}
                 height={size}
                 style={{
@@ -171,7 +173,10 @@ export default function HeroSection({
           }}
           className="flex flex-col items-center justify-center mt-32 text-center z-10"
         >
-          <h1 className="text-[2.2rem] md:text-5xl font-extrabold text-[#222] mb-3 tracking-tight">
+          <h1
+            id="hero-heading"
+            className="text-[2.2rem] md:text-5xl font-extrabold text-[#222] mb-3 tracking-tight"
+          >
             A new world of <span className="text-[#f70031]">creation</span>
             <br /> One trusted platform.
           </h1>
@@ -187,6 +192,7 @@ export default function HeroSection({
               ease: [0.42, 0, 0.58, 1],
             }}
             className="px-8 py-3 rounded-full bg-gradient-to-r from-[#f70031] to-[#ffd700] text-white font-bold shadow-md hover:scale-105 active:scale-98 transition-all"
+            aria-label="Scroll to Experience R∞M section"
             onClick={() => {
               const el = document.getElementById("experience");
               if (el) {

@@ -20,6 +20,11 @@ type Post = {
 
 const DEFAULT_IMAGE = "/wmLOGO.png";
 
+// 型ガード関数
+function isString(val: any): val is string {
+  return typeof val === "string";
+}
+
 function formatDate(dateVal: string | number | { seconds?: number }): string {
   if (!dateVal) return "";
   let d: Date;
@@ -45,20 +50,23 @@ export default function HighlightHeroCard({ post }: Props) {
   const router = useRouter();
   const [isFading, setIsFading] = useState(false);
 
+  // 安全なfirstImage抽出
   const firstImage =
-    post.blocks?.find((b) => b.type === "image" && b.content)?.content ||
-    post.image ||
-    DEFAULT_IMAGE;
+    isString(post.image)
+      ? post.image
+      : post.blocks?.find((b) => b.type === "image" && isString(b.content))?.content ||
+        DEFAULT_IMAGE;
 
+  // 安全なdescription抽出
   const description =
-    post.blocks?.find((b) => b.type === "text" && b.content)?.content?.slice(0, 80) || "";
+    post.blocks?.find((b) => b.type === "text" && isString(b.content))?.content?.slice(0, 80) || "";
 
   // カード全体クリックでfade out後にページ遷移
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsFading(true);
     setTimeout(() => {
-      router.push(`/posts/${post.id}`);
+      router.push(`/posts/${isString(post.id) ? post.id : ""}`);
     }, 220); // 0.22秒
   };
 
@@ -75,7 +83,7 @@ export default function HighlightHeroCard({ post }: Props) {
       style={{ pointerEvents: isFading ? "none" : "auto" }}
       tabIndex={0}
       role="button"
-      aria-label={`Read article: ${post.title}`}
+      aria-label={`Read article: ${isString(post.title) ? post.title : ""}`}
       onClick={handleCardClick}
       onKeyDown={e => {
         if (e.key === "Enter" || e.key === " ") handleCardClick(e as any);
@@ -83,30 +91,32 @@ export default function HighlightHeroCard({ post }: Props) {
     >
       {/* 画像セクション */}
       <div className="sm:w-1/2 w-full h-[200px] sm:h-auto relative flex-shrink-0">
-        <Image
-          src={firstImage}
-          alt={post.title}
-          width={430}
-          height={280}
-          className="w-full h-full object-cover"
-          priority
-        />
+        {isString(firstImage) && (
+          <Image
+            src={firstImage}
+            alt={isString(post.title) ? post.title : "image"}
+            width={430}
+            height={280}
+            className="w-full h-full object-cover"
+            priority
+          />
+        )}
       </div>
       {/* テキストセクション */}
       <div className="sm:w-1/2 w-full p-6 flex flex-col justify-center min-w-0 relative">
         <span className="inline-block bg-[#e3e8fc] text-xs text-[#192349] font-semibold px-2 py-0.5 rounded-full mb-2">
-          {post.category
+          {isString(post.category)
             ? post.category.charAt(0).toUpperCase() + post.category.slice(1)
             : "Uncategorized"}
         </span>
         <h2 className="text-2xl font-extrabold text-[#192349] mb-2 leading-snug group-hover:underline">
-          {post.title}
+          {isString(post.title) ? post.title : ""}
         </h2>
         <p className="text-base text-gray-500 mb-1 line-clamp-2">{description}</p>
         <p className="text-xs text-gray-400">{formatDate(post.createdAt)}</p>
         {/* シェアボタン・下部に配置（リンク外なのでイベントを阻害しません） */}
         <div className="flex justify-end sm:justify-end mt-3">
-          <ShareButtons title={post.title} />
+          <ShareButtons title={isString(post.title) ? post.title : ""} />
         </div>
       </div>
     </motion.div>

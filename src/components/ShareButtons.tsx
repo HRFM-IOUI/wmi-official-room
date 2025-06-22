@@ -9,13 +9,11 @@ import {
 } from "react-share";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-
-// ←ここが違う！ requireでimport
-const QRCode = require("qrcode.react");
+import { QRCodeSVG } from "qrcode.react"; // ←ここだけ修正
 
 export default function ShareButtons({ title }: { title: string }) {
   const path = usePathname();
-  const baseUrl = "https:/https://wmi-official-room.vercel.app";
+  const baseUrl = "https://wmi-official-room.vercel.app";
   const url =
     typeof window !== "undefined"
       ? window.location.origin + path
@@ -86,7 +84,7 @@ export default function ShareButtons({ title }: { title: string }) {
         <span className="text-xs text-gray-500 mb-1">
           Scan to share (for mobile, Instagram, TikTok)
         </span>
-        <QRCode value={url} size={88} bgColor="#fff" fgColor="#222" />
+        <QRCodeSVG value={url} size={88} bgColor="#fff" fgColor="#222" />
       </div>
     </div>
   );

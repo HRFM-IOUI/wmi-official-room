@@ -10,7 +10,10 @@ export default function FooterSection() {
   }, []);
 
   return (
-    <footer className="w-full bg-white text-gray-800 pt-10 sm:pt-14 pb-12 px-6 sm:px-8 shadow-lg">
+    <footer
+  id="site-footer"
+  className="w-full bg-white text-gray-800 pt-10 sm:pt-14 pb-12 px-6 sm:px-8 shadow-lg"
+>
       {/* Main Footer Info */}
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-8">
         <div className="text-center sm:text-left text-sm leading-relaxed text-gray-700">

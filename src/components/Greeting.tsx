@@ -9,6 +9,12 @@ export default function Greeting() {
       id="greeting"
     >
       <div className="max-w-3xl w-full">
+
+        {/* --- Welcome note --- */}
+        <div className="text-center text-sm sm:text-base text-gray-600 mb-6">
+          Welcome to the official site of <strong>WonderMetanism Inc.</strong>, the creators behind <strong>R∞M</strong> — a creative platform built by one founder and AI.
+        </div>
+
         {/* --- Heading --- */}
         <div className="mb-6 sm:mb-8">
           <h2

@@ -13,6 +13,11 @@ export default function NavigationModal() {
           </Link>
         </li>
         <li>
+          <Link href="/about" className="hover:text-[#f70031] hover:underline transition-all">
+            About
+          </Link>
+        </li>
+        <li>
           <Link href="/" className="hover:text-[#f70031] hover:underline transition-all">
             Back to Top
           </Link>

@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslation } from "@/context/TranslationContext";
 
 export default function Main() {

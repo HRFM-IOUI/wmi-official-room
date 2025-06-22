@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, ReactNode } from "react";
 import ja from "@/locales/ja.json";
 import en from "@/locales/en.json";

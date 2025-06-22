@@ -40,13 +40,13 @@ export default function SocialNewsTabs() {
 
         {/* Tab Content */}
         <div>
+          {/* --- Social Media --- */}
           {active === 0 && (
             <div className="flex flex-col items-center justify-center">
-              {/* Xカードのみ */}
               <div
                 className="bg-white/90 shadow-2xl rounded-2xl p-8 flex flex-col items-center
-                border border-[#f5f5f9] hover:scale-105 transition group
-                max-w-xs mx-auto"
+                  border border-[#f5f5f9] hover:scale-105 transition group
+                  max-w-xs mx-auto"
                 style={{
                   boxShadow: "0 6px 32px #0004, 0 1.5px 4px #f7003133",
                 }}
@@ -58,7 +58,7 @@ export default function SocialNewsTabs() {
                   </span>
                 </span>
                 <a
-                  href="https://x.com/wondermetanism?s=21" // ←ご自身のXアカウントURLに変更！
+                  href="https://x.com/wondermetanism?s=21" // ←XアカウントURL
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block mt-2 px-6 py-2 rounded-full font-bold text-white bg-gradient-to-r from-[#1cb5e0] to-[#000851] shadow hover:scale-105 transition"
@@ -70,36 +70,35 @@ export default function SocialNewsTabs() {
             </div>
           )}
 
+          {/* --- Announcements --- */}
           {active === 1 && (
-  <div className="space-y-5">
-    {/* Announcement Card */}
-    <div className="bg-gradient-to-r from-[#fff7f7] via-white to-[#f7f9ff] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
-      <div className="font-bold text-[#f70031] mb-1">Important Notice</div>
-      <div className="text-slate-800">
-        {/* ここに内容 */}
-        Welcome to the official news hub for R∞M. Here you’ll find updates on upcoming releases, technical improvements, and insights from the development team.
-      </div>
-    </div>
-  </div>
-)}
+            <div className="space-y-5">
+              <div className="bg-gradient-to-r from-[#fff7f7] via-white to-[#f7f9ff] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
+                <div className="font-bold text-[#f70031] mb-1">Important Notice</div>
+                <div className="text-slate-800">
+                  Welcome to the official news hub for R∞M.<br />
+                  Here you’ll find updates on upcoming releases, technical improvements, and insights from the development team.
+                </div>
+              </div>
+            </div>
+          )}
 
-
+          {/* --- Events --- */}
           {active === 2 && (
-  <div className="space-y-5">
-    {/* Event Card */}
-    <div className="bg-gradient-to-r from-[#edeffc] via-white to-[#fff7f7] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
-      <div className="font-bold text-[#f70031] mb-1">Upcoming Events</div>
-      <span className="text-xs text-gray-860">
-      {/* ここに内容 */}
-      きっと役に立てると思います。
-誰かの役に立てる、そんなイベント・発表をお楽しみに！！
-<br />
-We hope our events and updates will help someone, somewhere in the world. Stay tuned!
-</span>
-    </div>
-  </div>
-)}
-
+            <div className="space-y-5">
+              <div className="bg-gradient-to-r from-[#edeffc] via-white to-[#fff7f7] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
+                <div className="font-bold text-[#f70031] mb-1">Upcoming Events</div>
+                <div className="text-slate-800">
+                  きっと役に立てると思います。<br />
+                  誰かの役に立てる、そんなイベント・発表をお楽しみに！！
+                  <br />
+                  <span className="text-xs text-gray-800">
+                    We hope our events and updates will help someone, somewhere in the world. Stay tuned!
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

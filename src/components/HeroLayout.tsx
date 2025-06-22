@@ -23,15 +23,12 @@ function VideoExperienceSection() {
           "0 6px 32px 0 #f7003133, 0 1.5px 4px #1cb5e033, 0 0 0 3px #fff4 inset",
       }}
     >
-      {/* 光沢エフェクト */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-[-40%] top-0 w-[180%] h-[40%] bg-gradient-to-r from-white/40 via-white/70 to-white/40 blur-2xl opacity-30 animate-gloss" />
-      </div>
-      {/* 上メッセージ（立体＆閃光） */}
-      <p className="relative pt-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-[#f70031] via-yellow-400 to-blue-600 bg-clip-text shine-effect">
+      {/* 上メッセージ（右→左閃光、グラデ） */}
+      <p className="relative pt-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-slate-800 via-black to-white bg-clip-text shine-effect shine-reverse">
         Vertical &amp; horizontal swipe demo
-        <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow"></span>
+        <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow-reverse"></span>
       </p>
+
       {/* ROOMボタン */}
       <div className="flex items-center justify-center gap-8 py-10 select-none">
         {/* R */}
@@ -85,31 +82,31 @@ function VideoExperienceSection() {
           M
         </span>
       </div>
-      {/* 下メッセージ（立体＆閃光） */}
-      <p className="relative pb-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-[#f70031] via-yellow-400 to-blue-600 bg-clip-text shine-effect">
+      {/* 下メッセージ（左→右閃光、グラデ） */}
+      <p className="relative pb-6 text-center text-2xl sm:text-3xl font-extrabold tracking-wide drop-shadow-lg text-transparent bg-gradient-to-r from-slate-800 via-black to-white bg-clip-text shine-effect">
         Let&#39;s try R∞M video UI!
         <span className="absolute left-0 top-0 w-full h-full pointer-events-none shine-glow"></span>
       </p>
+
       {/* 光沢アニメーション用スタイル＋shineエフェクト */}
       <style>{`
-        @keyframes gloss {
-          0% { left: -60%; }
-          100% { left: 100%; }
+        /* 上部閃光：右→左 */
+        .shine-glow-reverse {
+          background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.7) 50%, transparent 80%);
+          position: absolute;
+          top: 0; left: 120%;
+          width: 50%; height: 100%;
+          transform: skewX(-20deg);
+          animation: shineMoveReverse 2.8s cubic-bezier(0.77,0,0.175,1) infinite;
+          pointer-events: none;
         }
-        .animate-gloss {
-          animation: gloss 4s linear infinite;
+        @keyframes shineMoveReverse {
+          0%   { left: 120%; }
+          60%  { left: -75%; }
+          100% { left: -75%; }
         }
 
-        /* 立体＆閃光エフェクト */
-        .drop-shadow-lg {
-          text-shadow:
-            0 2px 8px rgba(0,0,0,0.14),
-            0 6px 24px rgba(0,0,0,0.13);
-        }
-        .shine-effect {
-          position: relative;
-          overflow: hidden;
-        }
+        /* 下部閃光：左→右（元のshine-glow） */
         .shine-glow {
           background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.7) 50%, transparent 80%);
           position: absolute;
@@ -124,10 +121,22 @@ function VideoExperienceSection() {
           60%  { left: 120%; }
           100% { left: 120%; }
         }
+
+        /* 立体＆閃光エフェクト */
+        .drop-shadow-lg {
+          text-shadow:
+            0 2px 8px rgba(0,0,0,0.14),
+            0 6px 24px rgba(0,0,0,0.13);
+        }
+        .shine-effect {
+          position: relative;
+          overflow: hidden;
+        }
       `}</style>
     </section>
   );
 }
+
 
 // --- メインレイアウト ---
 export default function HeroLayout() {

@@ -33,16 +33,30 @@ const PIECES = [
   },
 ];
 
-export default function HeroSection({
-  size = 320,
-}: {
-  size?: number;
-}) {
+export default function HeroSection({ size = 320 }: { size?: number }) {
   const [assembled, setAssembled] = useState(false);
   const [moveUp, setMoveUp] = useState(false);
   const [showMain, setShowMain] = useState(false);
-
   const [stage, setStage] = useState<"grid" | "none">("none");
+
+  // パララックス用
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // ロゴのパララックス効果
+  const logoParallax = moveUp ? Math.min(scrollY * 0.15, 32) : 0;
+  const logoStyle = {
+    transform: `translateY(${logoParallax}px)`,
+    transition: "transform 0.13s cubic-bezier(0.22,1,0.36,1)",
+  };
+
+  // Heroメッセージのフェード
+  const heroOpacity = 1 - Math.min(scrollY / 200, 0.55);
+  const heroStyle = { opacity: heroOpacity, transition: "opacity 0.13s" };
 
   useEffect(() => {
     const timer = setTimeout(() => setAssembled(true), 1000);
@@ -96,7 +110,7 @@ export default function HeroSection({
         overflow: "hidden",
       }}
     >
-      {/* ロゴ4分割アニメーション */}
+      {/* ロゴ4分割アニメーション＋パララックス */}
       <motion.div
         initial={{ y: 0, scale: 1 }}
         animate={
@@ -110,6 +124,7 @@ export default function HeroSection({
           position: "absolute",
           top: 50,
           zIndex: 20,
+          ...logoStyle,
         }}
         aria-hidden="true"
       >
@@ -136,7 +151,7 @@ export default function HeroSection({
             >
               <Image
                 src="/wmLOGO.png"
-                alt="WonderMetanism Official Logo Animation"
+                alt={`WonderMetanism Official Logo Animation ${piece.key}`}
                 width={size}
                 height={size}
                 style={{
@@ -172,6 +187,7 @@ export default function HeroSection({
             stiffness: 100,
           }}
           className="flex flex-col items-center justify-center mt-32 text-center z-10"
+          style={heroStyle}
         >
           <h1
             id="hero-heading"

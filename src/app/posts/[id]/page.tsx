@@ -6,7 +6,7 @@ import { db } from "@/firebase";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import ShareButtons from "@/components/ShareButtons"; // ← 追加！
+import ShareButtons from "@/components/ShareButtons";
 
 type Block = {
   type: "heading" | "text" | "image" | "video";
@@ -41,7 +41,6 @@ function formatDate(dateVal: string | number | { seconds?: number }): string {
   }
 }
 
-// テーブルを.table-scrollでラップ
 const MarkdownComponents = {
   table: ({ node, ...props }: any) => (
     <div className="table-scroll overflow-x-auto">
@@ -67,20 +66,21 @@ export default function PostDetailPage() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setPost({
-          title: data.title ?? "",
+          title: typeof data.title === "string" ? data.title : "",
           createdAt: data.createdAt ?? "",
           blocks: Array.isArray(data.blocks)
-            ? data.blocks.map((b: any) => {
-                if (
-                  typeof b === "object" &&
-                  b !== null &&
-                  "type" in b &&
-                  "content" in b
-                ) {
-                  return b as Block;
-                }
-                return { type: "text", content: "" };
-              })
+            ? data.blocks
+                .filter(
+                  (b: any) =>
+                    typeof b === "object" &&
+                    b !== null &&
+                    "type" in b &&
+                    "content" in b &&
+                    typeof b.type === "string" &&
+                    typeof b.content === "string" &&
+                    ["heading", "text", "image", "video"].includes(b.type)
+                )
+                .map((b: any) => ({ type: b.type, content: b.content }))
             : [],
         });
       }
@@ -100,71 +100,76 @@ export default function PostDetailPage() {
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-10 space-y-7 border border-slate-100">
           <div>
             <h1 className="text-2xl sm:text-4xl font-extrabold text-[#192349] text-center drop-shadow-sm mb-2 leading-tight tracking-tight">
-              {post.title}
+              {typeof post.title === "string" ? post.title : ""}
             </h1>
             <p className="text-xs sm:text-sm text-gray-400 text-center">
               {formatDate(post.createdAt)}
             </p>
-            {/* シェアボタン挿入（タイトル下・日付下） */}
+            {/* シェアボタン */}
             <div className="flex justify-center my-4">
-              <ShareButtons title={post.title} />
+              <ShareButtons title={typeof post.title === "string" ? post.title : ""} />
             </div>
           </div>
-          {/* 記事ブロックを種類ごとに分岐して美しく表示 */}
+          {/* 記事ブロック */}
           <article className="space-y-6 text-gray-900 text-base leading-relaxed">
-            {post.blocks?.map((block, idx) => {
-              switch (block.type) {
-                case "heading":
-                  return (
-                    <h2
-                      key={idx}
-                      className="text-xl sm:text-2xl font-bold text-[#192349] text-center mt-8 mb-2"
-                    >
-                      {block.content}
-                    </h2>
-                  );
-                case "text":
-                  return (
-                    <div
-                      key={idx}
-                      className="prose prose-slate max-w-none text-base prose-a:text-blue-600 prose-blockquote:border-blue-400"
-                    >
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={MarkdownComponents}
+            {Array.isArray(post.blocks) &&
+              post.blocks.map((block, idx) => {
+                switch (block.type) {
+                  case "heading":
+                    return (
+                      <h2
+                        key={idx}
+                        className="text-xl sm:text-2xl font-bold text-[#192349] text-center mt-8 mb-2"
                       >
-                        {block.content}
-                      </ReactMarkdown>
-                    </div>
-                  );
-                case "image":
-                  return (
-                    <div key={idx} className="w-full flex justify-center my-6">
-                      <Image
-                        src={block.content}
-                        alt={`image-${idx}`}
-                        width={800}
-                        height={480}
-                        className="w-full max-w-2xl h-auto rounded-xl shadow-md border"
-                        unoptimized
-                      />
-                    </div>
-                  );
-                case "video":
-                  return (
-                    <div key={idx} className="w-full flex justify-center my-6">
-                      <video
-                        src={block.content}
-                        controls
-                        className="w-full max-w-2xl rounded-xl shadow border"
-                        style={{ background: "#000" }}
-                      />
-                    </div>
-                  );
-                default:
-                  return null;
-              }
-            })}
+                        {typeof block.content === "string" ? block.content : ""}
+                      </h2>
+                    );
+                  case "text":
+                    return (
+                      <div
+                        key={idx}
+                        className="prose prose-slate max-w-none text-base prose-a:text-blue-600 prose-blockquote:border-blue-400"
+                      >
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={MarkdownComponents}
+                        >
+                          {typeof block.content === "string" ? block.content : ""}
+                        </ReactMarkdown>
+                      </div>
+                    );
+                  case "image":
+                    return (
+                      <div key={idx} className="w-full flex justify-center my-6">
+                        {typeof block.content === "string" && (
+                          <Image
+                            src={block.content}
+                            alt={`image-${idx}`}
+                            width={800}
+                            height={480}
+                            className="w-full max-w-2xl h-auto rounded-xl shadow-md border"
+                            unoptimized
+                          />
+                        )}
+                      </div>
+                    );
+                  case "video":
+                    return (
+                      <div key={idx} className="w-full flex justify-center my-6">
+                        {typeof block.content === "string" && (
+                          <video
+                            src={block.content}
+                            controls
+                            className="w-full max-w-2xl rounded-xl shadow border"
+                            style={{ background: "#000" }}
+                          />
+                        )}
+                      </div>
+                    );
+                  default:
+                    return null;
+                }
+              })}
           </article>
         </div>
       ) : (

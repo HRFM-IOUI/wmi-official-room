@@ -58,25 +58,24 @@ export default function PostsPage() {
           const data = doc.data();
           return {
             id: doc.id,
-            title: data.title ?? "",
+            title: typeof data.title === "string" ? data.title : "",
             createdAt: data.createdAt ?? "",
             blocks: Array.isArray(data.blocks)
-              ? data.blocks.map((b: any): Block => {
-                  if (
-                    typeof b === "object" &&
-                    "type" in b &&
-                    "content" in b &&
-                    typeof b.type === "string" &&
-                    typeof b.content === "string" &&
-                    ["heading", "text", "image", "video"].includes(b.type)
-                  ) {
-                    return { type: b.type as Block["type"], content: b.content };
-                  }
-                  return { type: "text", content: "" };
-                })
+              ? data.blocks
+                  .filter(
+                    (b: any) =>
+                      typeof b === "object" &&
+                      b !== null &&
+                      "type" in b &&
+                      "content" in b &&
+                      typeof b.type === "string" &&
+                      typeof b.content === "string" &&
+                      ["heading", "text", "image", "video"].includes(b.type)
+                  )
+                  .map((b: any) => ({ type: b.type, content: b.content }))
               : [],
             image: typeof data.image === "string" ? data.image : undefined,
-            tags: Array.isArray(data.tags) ? data.tags : [],
+            tags: Array.isArray(data.tags) ? data.tags.filter((t: any) => typeof t === "string") : [],
             category: typeof data.category === "string" ? data.category : "uncategorized",
             highlight: !!data.highlight,
           };
@@ -97,9 +96,12 @@ export default function PostsPage() {
   const heroPost = highlightPosts[0] || null;
   const carouselHighlightPosts = highlightPosts.slice(1);
 
+  // string型チェック追加
   const filteredPosts = posts.filter((post) => {
-    const matchTitle = post.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCategory = !selectedCategory || post.category === selectedCategory;
+    const titleStr = typeof post.title === "string" ? post.title : "";
+    const catStr = typeof post.category === "string" ? post.category : "";
+    const matchTitle = titleStr.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCategory = !selectedCategory || catStr === selectedCategory;
     const notHero = !heroPost || post.id !== heroPost.id;
     return matchTitle && matchCategory && notHero;
   }).slice(0, 4);
@@ -147,7 +149,7 @@ export default function PostsPage() {
                 />
               </div>
 
-              {/* Hero記事（常に最上部・視線誘導強） */}
+              {/* Hero記事 */}
               {heroPost && (
                 <section className="mb-8">
                   <HighlightHeroCard post={heroPost} />

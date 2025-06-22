@@ -45,8 +45,8 @@ export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [loading, setLoading] = useState(true); // ローディング状態
-  const [error, setError] = useState<string | null>(null); // エラーメッセージ
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -91,7 +91,7 @@ export default function PostsPage() {
     };
 
     fetchPosts();
-  }, []); // コンポーネントがマウントされた時のみ実行
+  }, []);
 
   const highlightPosts = posts.filter((post) => post.highlight);
   const heroPost = highlightPosts[0] || null;
@@ -102,14 +102,14 @@ export default function PostsPage() {
     const matchCategory = !selectedCategory || post.category === selectedCategory;
     const notHero = !heroPost || post.id !== heroPost.id;
     return matchTitle && matchCategory && notHero;
-  }).slice(0, 4); // 2x2件
+  }).slice(0, 4);
 
   return (
     <>
-      {/* 🔝 スティッキーヘッダー */}
+      {/* スティッキーヘッダー */}
       <StickyHeader onSearchClick={() => setSearchOpen(true)} />
 
-      {/* 🔍 モーダル検索（Apple風） */}
+      {/* モーダル検索 */}
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setSearchOpen(false)}
@@ -117,21 +117,18 @@ export default function PostsPage() {
         setSearchTerm={setSearchTerm}
       />
 
-      {/* 🔽 メイン記事セクション */}
-      <main className="max-w-7xl w-full mx-auto px-2 sm:px-6 md:px-8 py-10 overflow-x-hidden">
-        {/* 📰 件数見出し */}
+      {/* メイン記事セクション */}
+      <main className="max-w-[1200px] w-full mx-auto px-3 sm:px-6 md:px-10 py-10 overflow-x-hidden">
         <h2 className="text-3xl font-extrabold text-[#192349] mb-6 tracking-tight drop-shadow">
           Latest News
         </h2>
 
-        {/* ローディング状態またはエラー表示 */}
         {loading && <p className="text-center text-gray-500 py-12">Loading posts...</p>}
         {error && <p className="text-center text-red-500 py-12">{error}</p>}
 
-        {/* コンテンツ */}
         {!loading && !error && (
           <div className="flex flex-col lg:flex-row gap-8 w-full">
-            {/* 📚 サイドバー */}
+            {/* サイドバー */}
             <div className="hidden lg:block min-w-[220px] max-w-[260px] flex-shrink-0">
               <CategorySidebar
                 selected={selectedCategory}
@@ -139,10 +136,10 @@ export default function PostsPage() {
               />
             </div>
 
-            {/* 📱 メインカラム */}
+            {/* メインカラム */}
             <div className="w-full min-w-0 flex flex-col">
-              {/* モバイル用カテゴリSwiper */}
-              <div className="lg:hidden mb-4">
+              {/* モバイル用カテゴリSwiper（余白調整） */}
+              <div className="lg:hidden mb-6 py-2">
                 <CategorySwiper
                   categories={CATEGORY_LIST}
                   selected={selectedCategory}
@@ -150,14 +147,14 @@ export default function PostsPage() {
                 />
               </div>
 
-              {/* 🎯 Hero記事 */}
+              {/* Hero記事（常に最上部・視線誘導強） */}
               {heroPost && (
                 <section className="mb-8">
                   <HighlightHeroCard post={heroPost} />
                 </section>
               )}
 
-              {/* 📚 通常記事（2×2） */}
+              {/* 通常記事（2×2） */}
               <section>
                 {filteredPosts.length === 0 ? (
                   <p className="text-center text-gray-400 py-12">No articles found.</p>
@@ -166,7 +163,7 @@ export default function PostsPage() {
                 )}
               </section>
 
-              {/* 🎠 カルーセル表示（2件目以降） */}
+              {/* カルーセル表示（2件目以降） */}
               {carouselHighlightPosts.length > 0 && (
                 <section className="mt-12">
                   <HighlightCarousel posts={carouselHighlightPosts} />

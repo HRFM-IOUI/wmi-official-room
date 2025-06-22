@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
     domains: [
       "firebasestorage.googleapis.com"
     ]
-  }
+  },
+  
 };
 
 export default nextConfig;

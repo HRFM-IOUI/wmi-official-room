@@ -6,6 +6,7 @@ import { db } from "@/firebase";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import ShareButtons from "@/components/ShareButtons"; // ← 追加！
 
 type Block = {
   type: "heading" | "text" | "image" | "video";
@@ -47,7 +48,6 @@ const MarkdownComponents = {
       <table {...props} />
     </div>
   ),
-  // h2ブロックを中央寄せ（prose配下でも効くように）
   h2: ({ node, ...props }: any) => (
     <h2 className="text-xl sm:text-2xl font-bold text-[#192349] mt-8 mb-2 text-center" {...props} />
   ),
@@ -105,6 +105,10 @@ export default function PostDetailPage() {
             <p className="text-xs sm:text-sm text-gray-400 text-center">
               {formatDate(post.createdAt)}
             </p>
+            {/* シェアボタン挿入（タイトル下・日付下） */}
+            <div className="flex justify-center my-4">
+              <ShareButtons title={post.title} />
+            </div>
           </div>
           {/* 記事ブロックを種類ごとに分岐して美しく表示 */}
           <article className="space-y-6 text-gray-900 text-base leading-relaxed">

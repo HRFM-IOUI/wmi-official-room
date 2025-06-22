@@ -1,7 +1,9 @@
 "use client";
-import React from "react";
-import Link from "next/link";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import Image from "next/image";
+import ShareButtons from "@/components/ShareButtons";
 
 type Block = {
   type: "heading" | "text" | "image" | "video";
@@ -16,7 +18,7 @@ type Post = {
   createdAt: string | number | { seconds?: number };
 };
 
-const DEFAULT_IMAGE = "/WMI-logo.png";
+const DEFAULT_IMAGE = "/wmLOGO.png";
 
 function formatDate(dateVal: string | number | { seconds?: number }): string {
   if (!dateVal) return "";
@@ -40,6 +42,9 @@ function formatDate(dateVal: string | number | { seconds?: number }): string {
 type Props = { post: Post };
 
 export default function HighlightHeroCard({ post }: Props) {
+  const router = useRouter();
+  const [isFading, setIsFading] = useState(false);
+
   const firstImage =
     post.blocks?.find((b) => b.type === "image" && b.content)?.content ||
     post.image ||
@@ -48,14 +53,33 @@ export default function HighlightHeroCard({ post }: Props) {
   const description =
     post.blocks?.find((b) => b.type === "text" && b.content)?.content?.slice(0, 80) || "";
 
+  // カード全体クリックでfade out後にページ遷移
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsFading(true);
+    setTimeout(() => {
+      router.push(`/posts/${post.id}`);
+    }, 220); // 0.22秒
+  };
+
   return (
-    <Link
-      href={`/posts/${post.id}`}
-      className="
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={{ opacity: isFading ? 0 : 1 }}
+      transition={{ duration: 0.22, ease: [0.33, 1, 0.68, 1] }}
+      className={`
         group w-full flex flex-col sm:flex-row bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden
         hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200 ease-in-out
-        min-h-[200px]
-      "
+        min-h-[200px] cursor-pointer
+      `}
+      style={{ pointerEvents: isFading ? "none" : "auto" }}
+      tabIndex={0}
+      role="button"
+      aria-label={`Read article: ${post.title}`}
+      onClick={handleCardClick}
+      onKeyDown={e => {
+        if (e.key === "Enter" || e.key === " ") handleCardClick(e as any);
+      }}
     >
       {/* 画像セクション */}
       <div className="sm:w-1/2 w-full h-[200px] sm:h-auto relative flex-shrink-0">
@@ -68,9 +92,8 @@ export default function HighlightHeroCard({ post }: Props) {
           priority
         />
       </div>
-
       {/* テキストセクション */}
-      <div className="sm:w-1/2 w-full p-6 flex flex-col justify-center min-w-0">
+      <div className="sm:w-1/2 w-full p-6 flex flex-col justify-center min-w-0 relative">
         <span className="inline-block bg-[#e3e8fc] text-xs text-[#192349] font-semibold px-2 py-0.5 rounded-full mb-2">
           {post.category
             ? post.category.charAt(0).toUpperCase() + post.category.slice(1)
@@ -81,7 +104,11 @@ export default function HighlightHeroCard({ post }: Props) {
         </h2>
         <p className="text-base text-gray-500 mb-1 line-clamp-2">{description}</p>
         <p className="text-xs text-gray-400">{formatDate(post.createdAt)}</p>
+        {/* シェアボタン・下部に配置（リンク外なのでイベントを阻害しません） */}
+        <div className="flex justify-end sm:justify-end mt-3">
+          <ShareButtons title={post.title} />
+        </div>
       </div>
-    </Link>
+    </motion.div>
   );
 }

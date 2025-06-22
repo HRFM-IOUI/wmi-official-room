@@ -1,4 +1,3 @@
-// HeroLayout.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import HeroSection from "./HeroSection";
@@ -13,6 +12,7 @@ import { BsArrowDownUp, BsArrowLeftRight } from "react-icons/bs";
 function VideoExperienceSection() {
   return (
     <section
+      id="experience" // ここが追加ポイント！
       className="
         relative mx-auto my-12 w-full max-w-xl rounded-2xl shadow-2xl
         bg-white/40 backdrop-blur-md border-2 border-gray-200/60
@@ -136,7 +136,6 @@ function VideoExperienceSection() {
     </section>
   );
 }
-
 
 // --- メインレイアウト ---
 export default function HeroLayout() {

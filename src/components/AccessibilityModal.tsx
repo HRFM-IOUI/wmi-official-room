@@ -29,19 +29,19 @@ export default function AccessibilityModal() {
         <div className="flex gap-2">
           <button
             onClick={() => setFontSize("small")}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all"
+            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-300 transition-all"
           >
             S
           </button>
           <button
             onClick={() => setFontSize("medium")}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all"
+            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-300 transition-all"
           >
             M
           </button>
           <button
             onClick={() => setFontSize("large")}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-all"
+            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-300 transition-all"
           >
             L
           </button>

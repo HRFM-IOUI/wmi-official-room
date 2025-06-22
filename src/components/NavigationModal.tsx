@@ -27,11 +27,6 @@ export default function NavigationModal() {
             Privacy Policy
           </Link>
         </li>
-        <li>
-          <Link href="/contact" className="hover:text-[#f70031] hover:underline transition-all">
-            Contact / Inquiry
-          </Link>
-        </li>
       </ul>
     </div>
   );

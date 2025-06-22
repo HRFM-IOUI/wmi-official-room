@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 
 const GridCarousel = dynamic(() => import("./GridCarousel"), { ssr: false });
 
-// 4ピースの情報
 const PIECES = [
   {
     key: "tl",
@@ -50,11 +49,10 @@ export default function HeroSection({
     let moveTimer: NodeJS.Timeout | null = null;
     let mainTimer: NodeJS.Timeout | null = null;
 
-    // ロゴ縮小移動アニメーションが始まるタイミングでHeroメッセージ・CTAボタンを表示
     if (assembled) {
-      moveTimer = setTimeout(() => setMoveUp(true), 920); // 合体直後にmoveUp
-      mainTimer = setTimeout(() => setShowMain(true), 920); // ロゴ縮小上昇開始から0.48秒でテキスト表示
-      setTimeout(() => setStage("grid"), 2200); // メインテキスト後にグリッドカルーセル表示
+      moveTimer = setTimeout(() => setMoveUp(true), 920);
+      mainTimer = setTimeout(() => setShowMain(true), 920);
+      setTimeout(() => setStage("grid"), 2200);
     }
 
     return () => {
@@ -97,6 +95,7 @@ export default function HeroSection({
         overflow: "hidden",
       }}
     >
+      {/* ロゴ4分割アニメーション */}
       <motion.div
         initial={{ y: 0, scale: 1 }}
         animate={
@@ -123,7 +122,7 @@ export default function HeroSection({
                 duration: 1.0,
                 type: "spring",
                 bounce: 0.25,
-                ease: [0.42, 0, 0.58, 1], // より滑らかに
+                ease: [0.42, 0, 0.58, 1],
               }}
               style={{
                 position: "absolute",
@@ -158,17 +157,17 @@ export default function HeroSection({
         })}
       </motion.div>
 
-      {/* 2. Heroメインテキスト＆CTA */}
+      {/* Heroメインテキスト＆CTA */}
       {showMain && (
         <motion.div
           initial={{ opacity: 0, y: 56 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
             duration: 1.0,
-            delay: 0.2, // アニメーション遅延を長めに設定
+            delay: 0.2,
             type: "spring",
-            damping: 25,  // 減衰設定をやや強めに
-            stiffness: 100, // バネの硬さを強くする
+            damping: 25,
+            stiffness: 100,
           }}
           className="flex flex-col items-center justify-center mt-32 text-center z-10"
         >
@@ -185,11 +184,17 @@ export default function HeroSection({
             transition={{
               delay: 0.5,
               duration: 0.6,
-              ease: [0.42, 0, 0.58, 1], // より滑らかに
+              ease: [0.42, 0, 0.58, 1],
             }}
             className="px-8 py-3 rounded-full bg-gradient-to-r from-[#f70031] to-[#ffd700] text-white font-bold shadow-md hover:scale-105 active:scale-98 transition-all"
+            onClick={() => {
+              const el = document.getElementById("experience");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+              }
+            }}
           >
-            Try it free
+            Experience R∞M
           </motion.button>
         </motion.div>
       )}

@@ -218,6 +218,15 @@ export default function HeroSection({ size = 320 }: { size?: number }) {
           >
             Experience R∞M
           </motion.button>
+          <a
+  href="https://paypal.me/wmiroom"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-block mt-4 px-6 py-2 rounded-full text-white bg-[#222] hover:bg-[#f70031] transition-colors text-sm font-medium"
+>
+  💖 Donate via PayPal
+</a>
+
         </motion.div>
       )}
 

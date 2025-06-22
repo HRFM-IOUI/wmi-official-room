@@ -89,11 +89,12 @@ export default function SocialNewsTabs() {
     {/* Event Card */}
     <div className="bg-gradient-to-r from-[#edeffc] via-white to-[#fff7f7] border-l-8 border-[#f70031] p-6 rounded-xl shadow hover:scale-105 transition">
       <div className="font-bold text-[#f70031] mb-1">Upcoming Events</div>
+      <span className="text-xs text-gray-860">
+      {/* ここに内容 */}
       きっと役に立てると思います。
 誰かの役に立てる、そんなイベント・発表をお楽しみに！！
 <br />
-<span className="text-xs text-gray-500">
-  We hope our events and updates will help someone, somewhere in the world. Stay tuned!
+We hope our events and updates will help someone, somewhere in the world. Stay tuned!
 </span>
     </div>
   </div>

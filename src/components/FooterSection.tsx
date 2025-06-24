@@ -24,7 +24,7 @@ export default function FooterSection() {
           <div className="text-lg font-bold tracking-tight mb-1 text-gray-800">WonderMetanism Inc.</div>
           <div className="text-xs text-gray-500 mb-1">Tokyo, Japan</div>
           <div className="text-xs text-gray-400">
-            <span className="font-mono">2012401031802</span> | Registered: 2016
+            <span className="font-mono">2012401031802</span> | Registered: 2024
           </div>
         </div>
         {/* お問い合わせ */}

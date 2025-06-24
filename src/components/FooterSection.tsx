@@ -33,7 +33,7 @@ export default function FooterSection() {
           <div>
             Email:&nbsp;
             <span className="font-semibold text-[#f70031]">
-              ik39.10vevic[at]gmail.com
+              contact@wonder-metansim.com
             </span>
             <span className="ml-2 text-gray-400 text-[10px]">(replace [at] with @)</span>
           </div>
